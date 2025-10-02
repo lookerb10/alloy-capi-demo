@@ -172,7 +172,7 @@ For complete API reference, visit the [Alloy Connectivity API Docs](https://docs
 
 - **Issues**: [GitHub Issues](https://github.com/lookerb10/alloy-capi-demo/issues)
 - **Questions**: Open a discussion in the repo
-- **Alloy Support**: support@alloy.com
+- **Alloy Support**: brandon@runalloy.com
 
 ## License
 
@@ -181,4 +181,5 @@ MIT License - feel free to use this code as a starting point for your own projec
 ---
 
 **Built with**: React, Alloy Connectivity API  
-**Maintained by**: Alloy Automation Team
+**Maintained by**: Brandon Looker of Alloy Automation
+
