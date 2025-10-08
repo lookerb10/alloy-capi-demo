@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alloy Connectivity API - Engineering Trial Guide</title>
+    <style>
+        @page {
+            margin: 1in;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 8.5in;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #1a1a1a;
+            border-bottom: 3px solid #4a90e2;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        h2 {
+            color: #2c3e50;
+            margin-top: 30px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 5px;
+        }
+        h3 {
+            color: #34495e;
+            margin-top: 20px;
+        }
+        h4 {
+            color: #555;
+            margin-top: 15px;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            overflow-x: auto;
+            page-break-inside: avoid;
+        }
+        pre code {
+            background: none;
+            padding: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            page-break-inside: avoid;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background: #f5f5f5;
+            font-weight: 600;
+        }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 20px 0;
+            page-break-inside: avoid;
+        }
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 20px 0;
+            page-break-inside: avoid;
+        }
+        .note {
+            font-style: italic;
+            color: #666;
+        }
+        ul, ol {
+            margin: 10px 0;
+            padding-left: 30px;
+        }
+        li {
+            margin: 5px 0;
+        }
+        .section {
+            page-break-after: avoid;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #e0e0e0;
+            margin: 30px 0;
+        }
+        .checkmark {
+            color: #4caf50;
+        }
+        a {
+            color: #4a90e2;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Alloy Connectivity API - Engineering Trial Guide</h1>
+
+    <h2>Overview</h2>
+    <p>This guide walks through the core Alloy Connectivity API flow using hands-on examples. The trial API enables you to programmatically manage integrations, authenticate systems, and execute operations across 20+ connectors.</p>
+
+    <div class="info-box">
+        <strong>Your Trial Credentials</strong><br>
+        API Key: <code>60YX3c2N2W7oQTdF7bUkD</code><br>
+        Base URL: <code>https://production.runalloy.com</code> (all endpoints use this base URL)
+    </div>
+
+    <hr>
+
+    <h2>Quick Reference</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Operation</th>
+                <th>Endpoint</th>
+                <th>Auth</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>List Connectors</td>
+                <td><code>GET /connectors</code></td>
+                <td>API Key</td>
+            </tr>
+            <tr>
+                <td>Create User</td>
+                <td><code>POST /users</code></td>
+                <td>API Key</td>
+            </tr>
+            <tr>
+                <td>Get Credential Metadata</td>
+                <td><code>GET /connectors/{connectorId}/credentials</code></td>
+                <td>API Key + User ID</td>
+            </tr>
+            <tr>
+                <td>Create Credentials</td>
+                <td><code>POST /users/{userId}/credentials</code></td>
+                <td>API Key</td>
+            </tr>
+            <tr>
+                <td>List Resources</td>
+                <td><code>GET /connectors/{connectorId}/resources</code></td>
+                <td>API Key</td>
+            </tr>
+            <tr>
+                <td>Get Action Details</td>
+                <td><code>GET /connectors/{connectorId}/actions/{actionId}</code></td>
+                <td>API Key</td>
+            </tr>
+            <tr>
+                <td>Execute Action</td>
+                <td><code>POST /connectors/{connectorId}/execute</code></td>
+                <td>API Key + Credential ID</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+    <h2>Core Workflow</h2>
+
+    <h3>Step 1: Verify API Access</h3>
+    <p><strong>Purpose:</strong> Confirm your API key works and see available connectors.</p>
+
+    <pre><code>curl -X GET https://production.runalloy.com/connectors \
+  -H "Accept: application/json" \
+  -H "x-api-version: 2025-06" \
+  -H "Authorization: Bearer 60YX3c2N2W7oQTdF7bUkD" </code></pre>
+
+    <p><strong>Expected Response:</strong></p>
+    <pre><code>{
+  "connectors": [
+    {
+      "id": "klaviyo",
+      "name": "Klaviyo",
+      "icon": "https://cdn.runalloy.com/icons/klaviyo.png",
+      "group": ["output"],
+      "category": ["marketing-automation"]
+    },
+    {
+      "id": "hubspot",
+      "name": "Hubspot",
+      "icon": "https://cdn.runalloy.com/icons/hubspot.png",
+      "group": ["input"],
+      "category": ["crm"]
+    }
+    // ... more connectors
+  ]
+}</code></pre>
+
+    <p><strong>What you're validating:</strong> API key authentication and connector catalog access.</p>
+
+    <hr>
+
+    <h3>Step 2: Create a User</h3>
+    <p><strong>Purpose:</strong> Users are containers for credentials and integration instances. Each end-user or tenant in your system maps to one Alloy user.</p>
+
+    <pre><code>curl -X POST https://production.runalloy.com/users \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -H "x-api-version: 2025-06" \
+  -H "Authorization: Bearer 60YX3c2N2W7oQTdF7bUkD" \
+  -d '{
+    "username": "engineer_test_001",
+    "fullName": "SAP Test Engineer"
+  }'</code></pre>
+
+    <p><strong>Expected Response:</strong></p>
+    <pre><code>{
+  "userId": "68d1234567890abcdef12345"
+}</code></pre>
+
+    <div class="info-box">
+        <strong>Save this:</strong> <code>userId</code> - you'll need it for all subsequent credential operations.
+    </div>
+
+    <p class="note">Reference: Your trial already has two users:</p>
+    <ul>
+        <li>Vinayak: <code>68c3229752345278627ae373</code></li>
+        <li>Keshav: <code>68ccf0183ebc2162c7e476fc</code></li>
+    </ul>
+
+    <hr>
+
+    <h3>Step 3: Get Connector Credentials Metadata</h3>
+    <p><strong>Purpose:</strong> Determine what authentication data a connector needs (OAuth tokens, API keys, etc.). This is a <strong>discovery step only</strong> - you're not creating credentials yet, just seeing what will be required.</p>
+
+    <p><strong>Example:</strong> Let's see what HubSpot needs for authentication.</p>
+
+    <pre><code>curl -X GET https://production.runalloy.com/connectors/hubspot/credentials \
+  -H "Accept: application/json" \
+  -H "x-api-version: 2025-06" \
+  -H "Authorization: Bearer 60YX3c2N2W7oQTdF7bUkD" \</code></pre>
+
+    <p><strong>Expected Response:</strong></p>
+    <pre><code>{
+  "metadata": [
+    {
+      "authenticationType": "oauth2",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "redirectUri": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object",
+            "properties": {},
+            "required": []
+          }
+        },
+        "required": ["userId", "redirectUri"]
+      }
+    }
+  ]
+}</code></pre>
+
+    <p><strong>What you're validating:</strong> Schema discovery for credential creation. This shows you need <code>userId</code> and <code>redirectUri</code> to initiate OAuth flow.</p>
+
+    <hr>
+
+    <h3>Step 4: Attach Credentials to User</h3>
+    <p><strong>Purpose:</strong> Store authentication credentials that will be used to execute operations.</p>
+
+    <p><strong>For OAuth connectors</strong> (like HubSpot), the complete flow is:</p>
+
+    <h4>Step 4a: Initiate OAuth Flow</h4>
+    <p>Generate the authorization URL that users will authenticate through:</p>
+
+    <pre><code>curl -X POST https://production.runalloy.com/connectors/hubspot/credentials \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -H "x-api-version: 2025-06" \
+  -H "Authorization: Bearer 60YX3c2N2W7oQTdF7bUkD" \
+
+  -d '{
+    "connectorId": "hubspot",
+    "credentialType": "oauth2",
+    "redirectUri": "https://your-app.com/oauth/callback"
+  }'</code></pre>
+
+    <p><strong>Expected Response:</strong></p>
+    <pre><code>{
+  "oauthUrl": "https://api.runalloy.com/api/strategy/connector/hubspot/authorize?userId=68c083a08b5ffaeec387abc9&redirectUri=https%3A%2F%2Frunalloy.com&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6IjY4YzA4M2EwOGI1ZmZhZWVjMzg3YWJjOSJ9LCJpYXQiOjE3NTk1MjAzNjAsImV4cCI6MTc1OTUyMzk2MH0.vK7SAJ8MOaed7L-Rn-rT1NXB3iWbywkj3lyEbflqeSY"
+}
+</code></pre>
+
+    <h4>Step 4b: User Authenticates</h4>
+    <ol>
+        <li>Redirect user to the <code>oauthUrl</code></li>
+        <li>User logs into HubSpot and grants permissions</li>
+        <li>HubSpot redirects back to your <code>redirectUri</code> with an authorization code</li>
+        <li>Alloy automatically exchanges the code for access/refresh tokens and attaches the credential to the user</li>
+    </ol>
+
+    <div class="info-box">
+        <strong>Save this:</strong> <code>credentialId</code> - required for executing operations.
+    </div>
+
+    <p class="note">Reference: Vinayak's account has 8 credentials, mostly HubSpot OAuth connections.</p>
+    <p class="note">Note: For this trial, use a HubSpot developer account or sandbox to test the OAuth flow.</p>
+
+    <hr>
+
+    <h3>Step 5: Discover Available Operations</h3>
+    <p><strong>Purpose:</strong> See what operations (resources and actions) a connector supports.</p>
+
+    <pre><code>curl -X GET https://production.runalloy.com/connectors/hubspot/resources \
+  -H "Accept: application/json" \
+  -H "x-api-version: 2025-06" \
+  -H "Authorization: Bearer 60YX3c2N2W7oQTdF7bUkD" </code></pre>
+
+    <p><strong>Expected Response:</strong></p>
+    <pre><code>{
+  "resources": [
+    {
+      "name": "companies",
+      "description": "Manage companies.",
+      "actions": [
+        {
+          "id": "listCompanies",
+          "name": "Retrieve companies",
+          "description": "Retrieve all companies."
+        },
+        {
+          "id": "createCompany",
+          "name": "Create a company",
+          "description": "Create a single company."
+        }
+      ]
+    },
+    {
+      "name": "contacts",
+      "description": "Manage contacts.",
+      "actions": [
+        {
+          "id": "listContacts",
+          "name": "List contacts",
+          "description": "Retrieve a list of contacts, with pagination."
+        },
+        {
+          "id": "createContact",
+          "name": "Create a contact",
+          "description": "Create a new contact record."
+        }
+      ]
+    }
+    // ... additional resources: deals, emails, tasks, tickets
+  ]
+}</code></pre>
+
+    <p><strong>What you're validating:</strong> Resource and action discovery for building dynamic UIs or workflows.</p>
+
+    <hr>
+
+    <h3>Step 6: Get Action Schema</h3>
+    <p><strong>Purpose:</strong> Retrieve the exact field structure for an operation (inputs, outputs, required fields).</p>
+
+    <pre><code>curl -X GET https://production.runalloy.com/connectors/hubspot/actions/createContact \
+  -H "Accept: application/json" \
+  -H "x-api-version: 2025-06" \ 
+  -H "Authorization: Bearer 60YX3c2N2W7oQTdF7bUkD"</code></pre>
+
+    <p><strong>Expected Response:</strong></p>
+    <pre><code>{
+  "action": {
+    "id": "createContact",
+    "displayName": "Create a contact",
+    "description": "Create a new contact record.",
+    "httpMethod": "post",
+    "path": "/crm/v3/objects/contacts",
+    "parameters": [],
+    "requestBody": {
+      "type": "object",
+      "required": [
+        "properties"
+      ],
+      "properties": {
+        "associations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "types": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "associationCategory": {
+                      "type": "string"
+                    },
+                    "associationTypeId": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              },
+              "to": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "properties": {
+          "type": "object",
+          "required": [
+            "firstname",
+            "lastname",
+            "email"
+          ],
+          "properties": {
+            "firstname": {
+              "type": "string"
+            },
+            "lastname": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string"
+            },
+            "company": {
+              "type": "string"
+            },
+            "website": {
+              "type": "string"
+            },
+            "phone": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "sampleSuccessResponse": {
+      "id": "string",
+      "properties": {
+        "firstname": "string",
+        "lastname": "string",
+        "email": "string",
+        "createdate": "2025-08-01T15:32:45.646Z",
+        "lastmodifieddate": "2025-08-01T15:32:45.646Z"
+      },
+      "createdAt": "2025-08-01T15:32:45.646Z",
+      "updatedAt": "2025-08-01T15:32:45.646Z",
+      "archived": true
+    }
+  }
+}</code></pre>
+
+    <p><strong>What you're validating:</strong> Schema introspection for validation and UI generation.</p>
+
+    <hr>
+
+    <h3>Step 7: Execute an Operation</h3>
+    <p><strong>Purpose:</strong> Make actual API calls through the connector using stored credentials.</p>
+
+    <p><strong>Example: Create a contact in HubSpot</strong></p>
+
+    <pre><code>curl -X POST https://production.runalloy.com/connectors/hubspot/actions/createContact/execute \
+  -H "Content-Type: application/json" \
+  -H "x-api-version: 2025-06" \
+  -H "x-alloy-userid: 68c3229752345278627ae373" \
+  -H "Authorization: Bearer 60YX3c2N2W7oQTdF7bUkD" \
+  -d '{
+    "credentialId": "68d2e2fd5aa2c97c2ae99c24",
+    "requestBody": {
+    "firstName": "Test",
+    "lastName": "Engineer",
+    "email": "test.engineer@sap.com"},
+    "additionalHeaders": {},
+    "queryParameters": {},
+    "pathParams": {}
+  }'</code></pre>
+
+    <p><strong>Expected Response:</strong></p>
+    <pre><code>{
+  "responseData": {
+    "id": "160781508360",
+    "properties": {
+      "createdate": "2025-10-03T19:52:48.062Z",
+      "hs_all_contact_vids": "160781508360",
+      "hs_associated_target_accounts": "0",
+      "hs_currently_enrolled_in_prospecting_agent": "false",
+      "hs_is_contact": "true",
+      "hs_is_unworked": "true",
+      "hs_lifecyclestage_lead_date": "1759521168062",
+      "hs_membership_has_accessed_private_content": "0",
+      "hs_object_id": "160781508360",
+      "hs_object_source": "INTEGRATION",
+      "hs_object_source_id": "210913",
+      "hs_object_source_label": "INTEGRATION",
+      "hs_pipeline": "contacts-lifecycle-pipeline",
+      "hs_prospecting_agent_actively_enrolled_count": "0",
+      "hs_prospecting_agent_total_enrolled_count": "0",
+      "hs_registered_member": "0",
+      "hs_sequences_actively_enrolled_count": "0",
+      "lastmodifieddate": "2025-10-03T19:52:48.062Z",
+      "lifecyclestage": "lead",
+      "num_notes": "0"
+    },
+    "createdAt": "2025-10-03T19:52:48.062Z",
+    "updatedAt": "2025-10-03T19:52:48.062Z",
+    "archived": false
+  }
+}</code></pre>
+
+    <p><strong>Example: List contacts</strong></p>
+
+    <pre><code>curl -X POST https://production.runalloy.com/connectors/hubspot/actions/listContacts/execute \
+  -H "Content-Type: application/json" \
+  -H "x-api-version: 2025-06" \
+  -H "x-alloy-userid: 68c3229752345278627ae373" \
+  -H "Authorization: Bearer 60YX3c2N2W7oQTdF7bUkD" \
+  -d '{
+    "credentialId": "68d9876543210fedcba98765",
+    "actionId": "listContacts",
+    "input": {
+      "limit": 10
+    }
+  }'</code></pre>
+
+    <hr>
+
+    <h2>Testing Best Practices</h2>
+
+    <h3>Start Simple</h3>
+    <ol>
+        <li>Connect one system (HubSpot or Notion recommended - both support OAuth)</li>
+        <li>Execute a GET operation (read data)</li>
+        <li>Execute a POST operation (create record)</li>
+        <li>Verify changes in the target system</li>
+    </ol>
+
+    <h3>Use Sandbox Accounts</h3>
+    <ul>
+        <li>Most connectors offer sandbox/developer environments</li>
+        <li>HubSpot: Free developer account</li>
+        <li>Salesforce: Developer sandbox</li>
+        <li>Notion: Personal workspace</li>
+    </ul>
+
+    <h3>Error Handling</h3>
+    <p><strong>Common error patterns:</strong></p>
+
+      <p>Incorrect API Key</p>
+    <pre><code>{
+  "message": "Invalid Authorization"
+}</code></pre>
+
+      <p>Missing or invalid credentialId</p>
+    <pre><code>{
+  "error": {
+    "source": "CONNECTIVITY_API",
+    "code": "INVALID_INPUT",
+    "message": "Credential not found",
+    "details": {}
+  }
+}</code></pre>
+
+      <p>Missing or invalid x-api-version header</p>
+    <pre><code>{
+  "errorHtml": "&lt;!DOCTYPE html&gt;\n&lt;html lang=\"en\"&gt;\n&lt;head&gt;\n  &lt;meta charset=&quot;utf-8&quot;&gt;\n  &lt;title&gt;Error&lt;/title&gt;\n&lt;/head&gt;\n&lt;body&gt;\n  &lt;pre&gt;Cannot GET /connectors&lt;/pre&gt;\n&lt;/body&gt;\n&lt;/html&gt;\n"
+}
+</code></pre>
+
+    <h3>Testing Checklist</h3>
+    <ul>
+        <li><span class="checkmark">☐</span> API key authenticates successfully</li>
+        <li><span class="checkmark">☐</span> User creation and retrieval works</li>
+        <li><span class="checkmark">☐</span> Credentials can be attached and validated</li>
+        <li><span class="checkmark">☐</span> Connector metadata loads correctly</li>
+        <li><span class="checkmark">☐</span> GET operations return expected data</li>
+        <li><span class="checkmark">☐</span> POST operations create records in target system</li>
+        <li><span class="checkmark">☐</span> Error responses are structured and actionable</li>
+    </ul>
+
+    <hr>
+
+    <h2>Advanced Scenarios</h2>
+
+    <h3>Pagination</h3>
+    <p>Many list operations support pagination:</p>
+
+    <pre><code>{
+  "actionId": "listContacts",
+  "input": {
+    "limit": 100,
+    "offset": 0
+  }
+}</code></pre>
+
+    <p>Response includes pagination metadata:</p>
+    <pre><code>{
+  "data": [...],
+  "pagination": {
+    "hasMore": true,
+    "nextOffset": 100
+  }
+}</code></pre>
+
+    <h3>Filtering and Search</h3>
+    <p>Some connectors support query parameters:</p>
+
+    <pre><code>{
+  "actionId": "searchContacts",
+  "input": {
+    "query": "email CONTAINS '@sap.com'",
+    "limit": 50
+  }
+}</code></pre>
+
+    <h3>Batch Operations</h3>
+    <p>Execute multiple actions in sequence (useful for data synchronization):</p>
+
+    <pre><code>{
+  "credentialId": "68d9876543210fedcba98765",
+  "actions": [
+    {
+      "actionId": "createContact",
+      "input": {...}
+    },
+    {
+      "actionId": "createCompany",
+      "input": {...}
+    }
+  ]
+}</code></pre>
+
+    <hr>
+
+    <h2>Your Trial Environment Summary</h2>
+
+    <h3>Users Created:</h3>
+    <ul>
+        <li>Vinayak Adkoli: <code>68c3229752345278627ae373</code></li>
+        <li>Keshav Kumar Gupta: <code>68ccf0183ebc2162c7e476fc</code></li>
+    </ul>
+
+    <h3>Active Credentials (Vinayak):</h3>
+    <ul>
+        <li>7 HubSpot OAuth connections</li>
+        <li>1 Notion OAuth connection</li>
+    </ul>
+
+    <h3>Available Connectors (20 total):</h3>
+    <ul>
+        <li><strong>CRM:</strong> HubSpot, Salesforce, Zoho, ServiceNow</li>
+        <li><strong>Shipping:</strong> Shippo, ShipStation, EasyShip</li>
+        <li><strong>E-commerce:</strong> BigCommerce, Clover, QuickBooks</li>
+        <li><strong>Support:</strong> Gorgias, Zendesk</li>
+        <li><strong>Marketing:</strong> Klaviyo, Attentive</li>
+        <li><strong>Productivity:</strong> Notion, Google Calendar, Slack</li>
+        <li><strong>Accounting:</strong> Xero, FreshBooks, Microsoft Dynamics BC</li>
+    </ul>
+
+    <hr>
+
+    <h2>Flexibility & Customization</h2>
+
+    <p>The Alloy Connectivity API is designed to be flexible:</p>
+
+    <h3>Authentication Patterns</h3>
+    <ul>
+        <li><strong>OAuth 2.0:</strong> HubSpot, Salesforce, Notion (we handle refresh automatically)</li>
+        <li><strong>API Keys:</strong> QuickBooks, Zendesk</li>
+        <li><strong>Custom Auth:</strong> Build your own credential storage and pass-through</li>
+    </ul>
+
+    <h3>Data Mapping</h3>
+    <ul>
+        <li>Use the schema introspection to build your own mapping layers</li>
+        <li>Transform data before/after execution</li>
+        <li>Implement your own validation logic</li>
+    </ul>
+
+    <h3>Execution Models</h3>
+    <ul>
+        <li><strong>Synchronous:</strong> Execute and wait for response (shown above)</li>
+        <li><strong>Asynchronous:</strong> Queue operations and poll for results</li>
+        <li><strong>Webhooks:</strong> React to events in real-time</li>
+    </ul>
+
+    <h3>UI/UX</h3>
+    <ul>
+        <li>Build your own integration marketplace</li>
+        <li>Create custom credential collection flows</li>
+        <li>Design domain-specific operation interfaces</li>
+    </ul>
+
+    <hr>
+
+    <h2>Optional: Reference Implementation</h2>
+
+    <p>We've created a working demo to help you visualize the integration flow. <strong>This is a reference implementation</strong> showing one possible architecture - your production implementation will differ based on your requirements.</p>
+
+    <div class="info-box">
+        <strong>Live Demo:</strong> <a href="https://lookerb10.github.io/alloy-capi-demo/">https://lookerb10.github.io/alloy-capi-demo/</a><br>
+        <strong>GitHub Repository:</strong> <a href="https://github.com/lookerb10/alloy-capi-demo">https://github.com/lookerb10/alloy-capi-demo</a>
+    </div>
+
+    <h3>What the Demo Shows</h3>
+
+    <h4>Core Functionality:</h4>
+    <ul>
+        <li>Session-based credential management</li>
+        <li>Dynamic connector selection with icons and metadata</li>
+        <li>Resource and action discovery from live API data</li>
+        <li>Auto-generated forms based on action schemas</li>
+        <li>OAuth flow with credential persistence</li>
+        <li>Live API execution with real responses</li>
+    </ul>
+
+    <h4>Key Features:</h4>
+    <ul>
+        <li><strong>Smart Form Generation:</strong> Required vs optional fields, proper input types</li>
+        <li><strong>OAuth Handling:</strong> Auto-detects missing credentials and initiates auth flow</li>
+        <li><strong>Error Handling:</strong> Helpful error messages and retry logic</li>
+        <li><strong>Real Integration:</strong> Actually creates records in connected platforms</li>
+    </ul>
+
+    <h3>How to Use It</h3>
+
+    <ol>
+        <li><strong>Visit the demo</strong> and enter your trial credentials:
+            <ul>
+                <li>API Key: <code>60YX3c2N2W7oQTdF7bUkD</code></li>
+                <li>User ID: <code>68c3229752345278627ae373</code> (Vinayak) or create a new user</li>
+            </ul>
+        </li>
+        <li><strong>Select a connector</strong> (HubSpot recommended for OAuth testing)</li>
+        <li><strong>Choose a resource and action</strong> (e.g., contacts → createContact)</li>
+        <li><strong>Authenticate</strong> if needed (OAuth popup will open)</li>
+        <li><strong>Fill the form</strong> and execute the operation</li>
+        <li><strong>See live results</strong> from the actual platform</li>
+    </ol>
+
+    <h3>What You'll Customize</h3>
+
+    <p>This demo is <strong>not production-ready code</strong>. Your implementation will need:</p>
+
+    <h4>Authentication & Security:</h4>
+    <ul>
+        <li>Your own user authentication system</li>
+        <li>Secure storage of Alloy credential IDs and user-to-credential mappings</li>
+        <li>Alloy API key protection (server-side only, never in frontend)</li>
+        <li>Rate limiting and access controls</li>
+    </ul>
+
+    <h4>Business Logic:</h4>
+    <ul>
+        <li>Data transformation and mapping layers</li>
+        <li>Validation rules specific to your domain</li>
+        <li>Webhook event processing</li>
+        <li>Error handling and retry strategies</li>
+    </ul>
+
+    <h4>User Experience:</h4>
+    <ul>
+        <li>UI/UX tailored to your users</li>
+        <li>Integration marketplace design</li>
+        <li>Onboarding flows</li>
+        <li>Usage analytics and monitoring</li>
+    </ul>
+
+    <h4>Infrastructure:</h4>
+    <ul>
+        <li>Backend services for API key management and credential ID storage</li>
+        <li>Database for user data and credential mappings</li>
+        <li>Queue systems for async operations</li>
+        <li>Logging and observability</li>
+    </ul>
+
+    <div class="warning-box">
+        <strong>Note:</strong> Alloy securely stores and manages the actual OAuth tokens and credentials for third-party platforms. You're responsible for securely mapping which of your users have access to which Alloy credential IDs.
+    </div>
+
+    <h3>Code Reference</h3>
+
+    <p>The GitHub repo includes:</p>
+    <ul>
+        <li>React components for connector selection and form generation</li>
+        <li>OAuth flow implementation</li>
+        <li>API client examples</li>
+        <li>Schema introspection patterns</li>
+    </ul>
+
+    <p><strong>Use it as:</strong></p>
+    <ul>
+        <li>Starting point for prototyping</li>
+        <li>Reference for API interaction patterns</li>
+        <li>Example of form generation from schemas</li>
+    </ul>
+
+    <p><strong>Not as:</strong></p>
+    <ul>
+        <li>Production code to deploy as-is</li>
+        <li>The only way to build integrations</li>
+        <li>A complete, secure solution</li>
+    </ul>
+
+    <h3>Architecture Flexibility</h3>
+
+    <p>The Alloy Connectivity API supports many approaches:</p>
+
+    <table>
+        <tr>
+            <th>Approach</th>
+            <th>Description</th>
+            <th>Best For</th>
+        </tr>
+        <tr>
+            <td><strong>Frontend-Heavy</strong> (like the demo)</td>
+            <td>
+                <ul style="margin: 5px 0;">
+                    <li>User authenticates directly with third parties</li>
+                    <li>Browser makes API calls to Alloy</li>
+                </ul>
+            </td>
+            <td>Simple apps, rapid prototyping</td>
+        </tr>
+        <tr>
+            <td><strong>Backend-Heavy</strong> (recommended for production)</td>
+            <td>
+                <ul style="margin: 5px 0;">
+                    <li>Your backend manages credentials</li>
+                    <li>Server-side API calls to Alloy</li>
+                </ul>
+            </td>
+            <td>Security, data transformation, complex workflows</td>
+        </tr>
+        <tr>
+            <td><strong>Hybrid</strong></td>
+            <td>
+                <ul style="margin: 5px 0;">
+                    <li>Frontend for OAuth initiation</li>
+                    <li>Backend for execution and storage</li>
+                </ul>
+            </td>
+            <td>Balance of UX and security</td>
+        </tr>
+    </table>
+
+    <p>Choose the architecture that fits your security requirements and user experience goals.</p>
+
+    <hr>
+
+    <h2>Next Steps</h2>
+
+    <ol>
+        <li><strong>Complete the walkthrough</strong> above with a test user and connector</li>
+        <li><strong>Review your POC objectives</strong> against what you've learned</li>
+        <li><strong>Identify gaps or questions</strong> for discussion</li>
+        <li><strong>Experiment</strong> with additional connectors and operations</li>
+    </ol>
+
+    <h2>Support</h2>
+
+    <ul>
+        <li>Documentation: <a href="https://docs.runalloy.com/connectivity-api/introduction">https://docs.runalloy.com/connectivity-api/introduction</a></li>
+        <li>Questions during trial: <a href="mailto:brandon@runalloy.com">brandon@runalloy.com</a>, <a href="mailto:matt@runalloy.com">matt@runalloy.com</a></li>
+        <li>API Status: <a href="https://status.runalloy.com">https://status.runalloy.com</a></li>
+    </ul>
+
+    <hr>
+
+    <p class="note"><strong>Remember:</strong> This trial is about understanding capabilities and fit. Focus on the user → credentials → execution flow, and don't hesitate to reach out with questions.</p>
+
+</body>
+</html>
