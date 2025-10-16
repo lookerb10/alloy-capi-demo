@@ -6,25 +6,25 @@ A comprehensive reference implementation showcasing the Alloy Connectivity API w
 
 ## 🚀 Quick Start
 
-**[Launch Live Demo →](https://lookerb10.github.io/alloy-capi-demo/Single-File/)**
+**[Launch Live Demo →](https://lookerb10.github.io/alloy-capi-demo/standalone/)**
 
 Choose your version:
-- **[Single-File Version](./Single-File/)** - All-in-one HTML file (recommended for quick demos)
-- **[Modular Version](./Modular/)** - Organized codebase for development and learning
+- **[Standalone Version](./standalone/)** - All-in-one HTML file (recommended for quick demos)
+- **[Modular Version](./modular/)** - Organized codebase for development and learning
 
 ---
 
 ## 📁 Repository Structure
 
-### Single-File Version
-📂 **[Single-File/](./Single-File/)**
+### Standalone Version
+📂 **[standalone/](./standalone/)**
 - `index.html` - Complete demo in one file
 - ✅ **Use when**: Quick demos, sharing, embedding
 - ✅ **Deploy to**: GitHub Pages, Netlify Drop, any static host
 - ⚡ **Zero build steps** - just open in browser
 
 ### Modular Version  
-📂 **[Modular/](./Modular/)**
+📂 **[modular/](./modular/)**
 - `index.html` - Entry point
 - `js/` - Organized JavaScript modules:
   - `main.js` - Application core & orchestration
@@ -97,20 +97,20 @@ Choose your version:
 
 ### 2. Choose Your Version
 
-#### Option A: Single-File (Quickest)
+#### Option A: Standalone (Quickest)
 
 ```bash
 # Just open the HTML file
-open Single-File/index.html
+open standalone/index.html
 ```
 
-Or visit the hosted version: [https://lookerb10.github.io/alloy-capi-demo/Single-File/](https://lookerb10.github.io/alloy-capi-demo/Single-File/)
+Or visit the hosted version: [https://lookerb10.github.io/alloy-capi-demo/standalone/](https://lookerb10.github.io/alloy-capi-demo/standalone/)
 
 #### Option B: Modular (For Development)
 
 ```bash
 # Must serve via HTTP (ES6 modules requirement)
-cd Modular
+cd modular
 python3 -m http.server 8000
 # or
 npx serve
@@ -133,7 +133,7 @@ open http://localhost:8000
 
 ## 🛠️ Customization Guide
 
-### Single-File Version
+### Standalone Version
 Edit the CSS in `<style>` tags to change:
 ```css
 :root {
@@ -158,12 +158,12 @@ The modular structure makes extending easier:
 1. Fork this repository
 2. Go to Settings → Pages
 3. Select "Deploy from branch: main"
-4. Your demo will be live at `https://yourusername.github.io/alloy-capi-demo/Single-File/`
+4. Your demo will be live at `https://yourusername.github.io/alloy-capi-demo/standalone/`
 
 ### Netlify / Vercel
 1. Connect your GitHub repo
 2. Build settings: None needed (static site)
-3. Publish directory: `Single-File/` or `Modular/`
+3. Publish directory: `standalone/` or `modular/`
 4. Deploy!
 
 ### Any Static Host
