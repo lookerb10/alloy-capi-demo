@@ -4,6 +4,7 @@ import { API } from './api.js';
 import { SchemaParser } from './schemaParser.js';
 import { DemoDataGenerator } from './demoData.js';
 import { UI } from './ui.js';
+import { cycleTheme, initTheme } from './themes.js'; // ADD THIS LINE
 
 class AlloyDemo {
   constructor() {
@@ -74,6 +75,11 @@ class AlloyDemo {
       if ((e.metaKey || e.ctrlKey) && e.key === 'd') {
         e.preventDefault();
         this.toggleDarkMode();
+      }
+      
+      // ADD THIS: T key for theme cycling
+      if (e.key.toLowerCase() === 't' && document.activeElement.tagName !== 'INPUT') {
+        cycleTheme();
       }
     });
   }
@@ -759,11 +765,15 @@ class AlloyDemo {
     // Header buttons
     document.getElementById('reset-btn')?.addEventListener('click', () => this.reset());
     document.getElementById('dark-mode-btn')?.addEventListener('click', () => this.toggleDarkMode());
+    
+    // ADD THIS LINE:
+    document.getElementById('theme-btn')?.addEventListener('click', () => cycleTheme());
+    
     document.getElementById('templates-btn')?.addEventListener('click', () => {
       const modalHtml = UI.renderTemplatesModal(this.state.savedTemplates);
       document.body.insertAdjacentHTML('beforeend', modalHtml);
     });
-    
+  
     // Connections button
     document.getElementById('connections-btn')?.addEventListener('click', () => this.showConnectionsModal());
     
@@ -854,6 +864,7 @@ class AlloyDemo {
 // Initialize the app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
+    initTheme(); // Initialize theme first
     window.alloyDemo = new AlloyDemo();
   }, 100);
 });

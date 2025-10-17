@@ -1,373 +1,326 @@
 # Alloy Connectivity API Demo
 
-A comprehensive reference implementation showcasing the Alloy Connectivity API with real integrations, OAuth flows, dynamic form generation, credential management, and modern UI enhancements.
+A comprehensive, interactive demo application showcasing the Alloy Connectivity API with **4 stunning white-label themes**. This demo provides a complete integration workflow from connector selection to action execution with live API calls.
 
-> **⚠️ Important**: This is a reference implementation for learning and prototyping. It is **not production-ready code**. See [Production Considerations](#production-considerations) below.
+## 🎨 4 White-Label Themes
 
-## 🚀 Quick Start
+Press **T** to cycle through completely different layouts:
 
-**[Launch Live Demo →](https://lookerb10.github.io/alloy-capi-demo/standalone/)**
+1. **Alloy Blue** (Default) - Clean, technical card grid layout with step indicators
+2. **Enterprise Dashboard** - Professional sidebar navigation with table view and teal accents
+3. **Startup Minimal** - Bold, spacious cards with purple/cyan gradients and glassmorphism
+4. **Developer Console** - Terminal-style monospace interface with green-on-black theme
 
-Choose your version:
-- **[Standalone Version](./standalone/)** - All-in-one HTML file (recommended for quick demos)
-- **[Modular Version](./modular/)** - Organized codebase for development and learning
+Each theme demonstrates the white-label power of Alloy CAPI - **same data, completely different products!**
 
----
+## ✨ Features
 
-## 📁 Repository Structure
+### Core Functionality
+- **Live API Integration** - Real-time calls to Alloy Connectivity API
+- **100+ Connectors** - Support for all major SaaS platforms
+- **OAuth 2.0 Flow** - Complete authentication workflow with popup handling
+- **Dynamic Schema Parsing** - Automatically generates forms from API schemas
+- **Credential Management** - Connect, test, reconnect, and disconnect integrations
+- **Action Execution** - Execute any API action with form validation
+- **Recent Activity Tracking** - View and re-run past executions
 
-### Standalone Version
-📂 **[standalone/](./standalone/)**
-- `index.html` - Complete demo in one file
-- ✅ **Use when**: Quick demos, sharing, embedding
-- ✅ **Deploy to**: GitHub Pages, Netlify Drop, any static host
-- ⚡ **Zero build steps** - just open in browser
+### Developer Experience
+- **API Inspector** - View all API calls with full request/response details
+- **Grouped Credential Checks** - Intelligent batching of credential status calls
+- **Dark Mode** - Full dark theme support (⌘D / Ctrl+D)
+- **Keyboard Shortcuts** - Quick navigation and actions
+- **Demo Data Generator** - Smart autofill for testing actions
+- **Search & Filters** - Find connectors by name or category
+- **Modular Architecture** - Clean separation of concerns
 
-### Modular Version  
-📂 **[modular/](./modular/)**
-- `index.html` - Entry point
-- `js/` - Organized JavaScript modules:
-  - `main.js` - Application core & orchestration
-  - `ui.js` - All rendering components
-  - `api.js` - API client & request tracking
-  - `config.js` - Configuration management
-  - `schemaParser.js` - Schema parsing & form generation
-  - `demoData.js` - Demo data generator
-- ✅ **Use when**: Learning, customizing, contributing
-- ✅ **Better for**: Code review, maintenance, extensions
+### UI/UX
+- **5-Step Workflow** - Visual progress through the integration flow
+- **Real-time Status** - Live credential status badges
+- **Responsive Design** - Works on desktop, tablet, and mobile
+- **Loading States** - Smooth transitions and feedback
+- **Error Handling** - User-friendly error messages
+- **Toast Notifications** - Non-intrusive theme change alerts
+- **Modal Management** - Keyboard accessible modals (ESC to close)
 
----
+## 🚀 Getting Started
 
-## ✨ Features (v4.0)
+### Prerequisites
+- Alloy API Key ([Get one here](https://runalloy.com))
+- Alloy User ID
+- Modern web browser (Chrome, Firefox, Safari, Edge)
+- Local web server (Python, Node.js, or VS Code Live Server)
 
-### 🔌 Real API Integration
-- Connect to 200+ actual third-party platforms
-- Execute real actions (create/update/delete data)
-- Works with HubSpot, Salesforce, Shopify, Google Drive, Notion, and more
+### Installation
 
-### 🔐 Advanced Credential Management
-- **Visual status badges** - See connection state at a glance
-- **"View Connections" panel** - Manage all credentials in one place
-- **One-click authentication** - Connect platforms directly from the UI
-- **Test connections** - Verify credentials are working
-- **Reconnect & disconnect** - Full credential lifecycle management
-- **Automatic OAuth flow** - Handles popup windows and callbacks
-
-### 📊 Live API Inspector
-- **Real-time tracking** - See every request and response
-- **Smart grouping** - Credential checks grouped to reduce noise
-- **Full visibility** - Request/response bodies, timing, status codes
-- **Collapsible panel** - Stays out of the way until needed
-
-### 🎨 Modern UI & UX
-- **Dark mode** - Toggle with ⌘D keyboard shortcut
-- **Search & filter** - Find connectors instantly with ⌘K
-- **Category filters** - CRM, E-commerce, Productivity, etc.
-- **Recent Activity** - Last 5 actions with "Run Again" buttons
-- **Keyboard shortcuts** - Power-user features
-- **Responsive design** - Works on desktop and mobile
-- **Alloy brand colors** - Professional UI with `rgb(33, 43, 196)`
-
-### 🔄 Dynamic Form Generation
-- **Schema-driven forms** - Auto-generated from API schemas
-- **Smart field types** - Date pickers, dropdowns, validation
-- **Nested object support** - Complex data structures handled
-- **Auto-fill demo data** - One-click sample data for testing
-
-### 📈 Result Visualization
-- **JSON view** - Formatted with syntax highlighting
-- **Table view** - Clean key-value pairs with nested flattening
-- **Copy to clipboard** - One-click response copying
-
----
-
-## 🎯 Getting Started
-
-### 1. Get Your Alloy Credentials (2 minutes)
-
-1. **API Key**: 
-   - Go to [Alloy Dashboard](https://dashboard.runalloy.com)
-   - Navigate to **Settings → API Keys**
-   - Create or copy an API key
-
-2. **User ID**:
-   - In Alloy Dashboard, go to **Users**
-   - Create a test user or use existing
-   - Copy the User ID
-
-### 2. Choose Your Version
-
-#### Option A: Standalone (Quickest)
-
+1. **Clone the repository**
 ```bash
-# Just open the HTML file
-open standalone/index.html
+git clone https://github.com/yourusername/alloy-capi-demo.git
+cd alloy-capi-demo
 ```
 
-Or visit the hosted version: [https://lookerb10.github.io/alloy-capi-demo/standalone/](https://lookerb10.github.io/alloy-capi-demo/standalone/)
+2. **Start a local server**
 
-#### Option B: Modular (For Development)
-
+**Option A: Python**
 ```bash
-# Must serve via HTTP (ES6 modules requirement)
-cd modular
-python3 -m http.server 8000
-# or
-npx serve
-# or use VS Code Live Server
-
-open http://localhost:8000
+python -m http.server 8000
 ```
 
-### 3. Enter Credentials & Start Exploring!
+**Option B: Node.js**
+```bash
+npx http-server -p 8000
+```
 
----
+**Option C: VS Code**
+- Install "Live Server" extension
+- Right-click `index.html` → "Open with Live Server"
+
+3. **Open in browser**
+```
+http://localhost:8000
+```
+
+4. **Enter credentials**
+- API Key (starts with `sk_`)
+- User ID (your Alloy user identifier)
+
+5. **Start integrating!**
+
+## 📁 Project Structure
+```
+/alloy-capi-demo
+  /js
+    - main.js           # Main application logic
+    - ui.js             # UI rendering (includes theme layouts)
+    - themes.js         # Theme management system
+    - api.js            # API client with call history
+    - config.js         # Configuration management
+    - schemaParser.js   # Dynamic schema parsing
+    - demoData.js       # Smart test data generation
+  - index.html          # Main HTML file with theme CSS
+  - README.md           # This file
+```
+
+## 🎯 Usage Flow
+
+### 1. Choose Platform
+Browse and select from 100+ available connectors. Use search and category filters to find the platform you need.
+
+### 2. Select Resource & Action
+Pick the data model (resource) and the specific action you want to perform (Create, Read, Update, Delete, List, etc.).
+
+### 3. Configure Action
+Fill in required and optional fields. Use the "Fill Example Data" button to auto-populate with realistic test data.
+
+### 4. Execute
+Run the action against the live Alloy API. If not connected, you'll be prompted to authenticate via OAuth.
+
+### 5. View Results
+See the response in JSON or Table format. Copy the response or try another integration.
 
 ## ⌨️ Keyboard Shortcuts
 
-- **⌘K / Ctrl+K** - Focus search bar
-- **⌘D / Ctrl+D** - Toggle dark mode
-- **Esc** - Close any open modal
+| Key | Action |
+|-----|--------|
+| `T` | Cycle through themes |
+| `⌘D` / `Ctrl+D` | Toggle dark mode |
+| `⌘K` / `Ctrl+K` | Focus search |
+| `Esc` | Close modals |
 
----
+## 🎨 Theme Customization
 
-## 🛠️ Customization Guide
-
-### Standalone Version
-Edit the CSS in `<style>` tags to change:
+Each theme uses CSS classes for easy white-labeling. Modify colors, fonts, and layouts in `index.html`:
 ```css
-:root {
-    --alloy-blue: rgb(33, 43, 196);        /* Primary brand color */
-    --alloy-blue-dark: rgb(25, 32, 150);   /* Hover states */
-    --alloy-blue-light: rgb(60, 80, 220);  /* Dark mode */
+/* Enterprise Theme - Teal colors */
+body.theme-enterprise { 
+  background: #f8fafc;
+}
+body.theme-enterprise h1 { 
+  color: #0f766e; 
+}
+
+/* Startup Minimal - Purple/Cyan gradients */
+body.theme-minimal h1 {
+  background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+}
+
+/* Developer Console - Green terminal */
+body.theme-developer {
+  background: #0a0e1a;
+  color: #00ff41;
 }
 ```
 
-### Modular Version
-The modular structure makes extending easier:
-- **New UI component?** → Add to `js/ui.js`
-- **New API endpoint?** → Add to `js/api.js`
-- **Custom data processing?** → Add to `js/schemaParser.js`
-- **New workflow step?** → Add to `js/main.js`
+Create your own themes by adding new CSS classes and registering them in `js/themes.js`.
 
----
+## 🔧 API Endpoints Used
 
-## 🚀 Deployment Options
+- `GET /connectors` - List available integrations
+- `GET /connectors/{id}/credentials` - Check connection status
+- `GET /connectors/{id}/credentials/metadata` - Get credential requirements
+- `POST /connectors/{id}/credentials` - Create OAuth connection
+- `DELETE /connectors/{id}/credentials/{credentialId}` - Disconnect
+- `GET /connectors/{id}/resources` - Get available resources
+- `GET /connectors/{id}/actions/{actionId}` - Get action schema
+- `POST /connectors/{id}/actions/{actionId}/execute` - Execute action
 
-### GitHub Pages (Easiest)
-1. Fork this repository
-2. Go to Settings → Pages
-3. Select "Deploy from branch: main"
-4. Your demo will be live at `https://yourusername.github.io/alloy-capi-demo/standalone/`
+## 📊 Features Deep Dive
 
-### Netlify / Vercel
-1. Connect your GitHub repo
-2. Build settings: None needed (static site)
-3. Publish directory: `standalone/` or `modular/`
-4. Deploy!
+### API Inspector
+The built-in API Inspector shows:
+- HTTP method and status codes
+- Request/response bodies
+- Response times and timestamps
+- Full URLs with parameters
+- Grouped credential checks for better UX
 
-### Any Static Host
-Upload either folder to:
-- AWS S3 + CloudFront
-- Google Cloud Storage
-- Azure Static Web Apps
-- DigitalOcean App Platform
-- Cloudflare Pages
+### Recent Activity
+- Tracks last 10 executions
+- Shows success/failure status
+- One-click re-run functionality
+- Persists across browser sessions
 
-**Note**: Modular version requires HTTP/HTTPS (not file://) due to ES6 modules.
+### Smart Form Generation
+- Parses OpenAPI/JSON schemas automatically
+- Handles nested objects and arrays
+- Supports enums and boolean fields
+- Validates required vs optional fields
+- Generates intelligent placeholders
 
----
+### OAuth Flow
+- Popup-based authentication
+- Supports subdomain requirements (Zendesk, etc.)
+- Automatic retry on auth failure
+- Credential persistence
 
-## 📖 How to Use
+## 🏗️ Technical Architecture
 
-### Main Workflow
+### Modular Design
+- **Config Module** - Credential management with sessionStorage
+- **API Module** - Fetch wrapper with history tracking
+- **Schema Parser** - Dynamic form generation from OpenAPI specs
+- **UI Module** - Theme-aware rendering system
+- **Theme Module** - CSS-based theme switching
+- **Demo Data Generator** - Context-aware test data
 
-1. **Connect a Platform**
-   - Click credential badge or select connector
-   - Follow OAuth flow in popup window
-   - Badge turns green ✓
+### State Management
+- Centralized state object
+- Immutable updates via `setState()`
+- Automatic re-rendering on state changes
 
-2. **Execute an Action**
-   - Select connected platform
-   - Pick resource (Contacts, Companies, etc.)
-   - Choose action from dropdown
-   - Fill form (or click "✨ Fill Example Data")
-   - Execute and view results
+### Browser Compatibility
+- Chrome/Edge (recommended)
+- Firefox
+- Safari
+- Modern browsers with ES6+ module support
 
-3. **Manage Connections**
-   - Click "🔌 Connections" button (top left)
-   - View all connected platforms
-   - Test, reconnect, or disconnect
+### Storage
+- **sessionStorage** - API credentials (cleared on tab close for security)
+- **localStorage** - Dark mode preference, theme selection, recent activity, saved templates
 
-4. **Track API Calls**
-   - Click "🔍 API Inspector" (top right)
-   - See real-time request/response data
-   - Expand for full details
+## 🔒 Security
 
----
+- API credentials stored in `sessionStorage` (not persistent across browser sessions)
+- No credentials logged to console
+- OAuth flow uses Alloy's secure redirect
+- HTTPS required for production use
+- No backend required (all client-side)
 
-## ⚠️ Production Considerations
+## 🐛 Troubleshooting
 
-**This demo is NOT production-ready.** For production use, you need:
+### Blank page on load
+**Cause:** CORS error when opening `file://` directly  
+**Solution:** Use a local web server (see Installation section)
 
-### Security (CRITICAL)
-- [ ] **Backend API proxy** - Never expose API keys in frontend
-- [ ] **Server-side credential storage** - Secure credential ID mappings
-- [ ] **User authentication** - OAuth, JWT, or sessions
-- [ ] **API key rotation** - Regular key management
-- [ ] **Rate limiting** - Prevent abuse
-- [ ] **Input validation** - Sanitize all inputs server-side
-- [ ] **CORS configuration** - Proper origin restrictions
+### "No connectors loading"
+- ✅ Check API key is valid
+- ✅ Ensure User ID is correct
+- ✅ Open browser console for error details
+- ✅ Verify internet connection
 
-**Note**: Alloy securely stores OAuth tokens. You're responsible for:
-1. Protecting your Alloy API key
-2. Managing user-to-credential mappings
-3. Access control
+### "OAuth not working"
+- ✅ Allow popups in browser settings
+- ✅ Check redirect URI matches configuration
+- ✅ Verify connector supports OAuth2
+- ✅ Complete authentication in popup window
 
-### Architecture
-- [ ] Backend API layer (Node.js, Python, etc.)
-- [ ] Database for users & mappings
-- [ ] Queue system for async operations
-- [ ] Webhook handling for real-time updates
-- [ ] Logging & monitoring
-- [ ] Caching (Redis for schemas, etc.)
+### "Action execution fails"
+- ✅ Ensure connector is connected (green badge)
+- ✅ Fill all required fields (marked with *)
+- ✅ Check API Inspector for detailed error
+- ✅ Try "Test Connection" in credential modal
 
-### Compliance
-- [ ] Data privacy (GDPR, CCPA)
-- [ ] Audit logging
-- [ ] Terms of service
-- [ ] Security testing
-
----
-
-## 🗺️ Architecture Patterns
-
-### Pattern 1: Frontend-Heavy (This Demo)
-```
-Browser → Alloy API → Third-Party Platform
-```
-**Best for**: Prototypes, internal tools, learning
-
-### Pattern 2: Backend-Heavy (Recommended for Production)
-```
-Browser → Your API → Alloy API → Third-Party Platform
-```
-**Best for**: Production apps, SaaS products
-
-### Pattern 3: Hybrid
-```
-Browser → Your API (OAuth) → Alloy API (Execute)
-       ↘ Alloy API (Direct for UI)
-```
-**Best for**: High-scale production apps
-
----
+### Theme not switching
+- ✅ Press T key (not in an input field)
+- ✅ Click the 🎨 Theme button
+- ✅ Check browser console for errors
+- ✅ Refresh the page
 
 ## 📚 Resources
 
-- **Alloy Docs**: https://docs.runalloy.com
-- **Dashboard**: https://dashboard.runalloy.com
-- **API Reference**: https://docs.runalloy.com/reference
-- **Connector Catalog**: https://runalloy.com/integrations
-- **Support**: brandon@runalloy.com
+- [Alloy Documentation](https://docs.runalloy.com)
+- [Alloy API Reference](https://docs.runalloy.com/reference)
+- [Alloy Dashboard](https://runalloy.com)
+- [Get API Credentials](https://runalloy.com/settings)
 
----
+## 🎯 Use Cases
+
+This demo is perfect for:
+- **Sales Demos** - Show prospects the ease of integration
+- **Partner Enablement** - Help partners understand the API
+- **Internal Testing** - Test integrations without writing code
+- **White-Label Examples** - Demonstrate different UI possibilities
+- **API Exploration** - Learn the Alloy API interactively
+- **Integration Prototyping** - Quickly test workflows before building
+- **Training & Onboarding** - Teach teams about the Alloy platform
+
+## 🌟 Key Highlights
+
+- ✅ **Zero backend required** - Pure client-side JavaScript
+- ✅ **Live API calls** - Real integrations, not mocked data
+- ✅ **4 complete themes** - Demonstrate white-label flexibility
+- ✅ **Full OAuth flow** - Production-ready authentication
+- ✅ **Schema-driven** - Adapts to any connector automatically
+- ✅ **Developer-friendly** - API inspector and keyboard shortcuts
+- ✅ **Production-ready** - Comprehensive error handling
+- ✅ **Modular architecture** - Easy to extend and customize
+- ✅ **Open source** - Use and modify freely
 
 ## 🤝 Contributing
 
-We welcome:
-- 🐛 Bug reports
-- 💡 Feature suggestions
-- ❓ Questions about implementation
-- 📖 Documentation improvements
+Contributions are welcome! Feel free to:
+- Report bugs
+- Suggest new features
+- Submit pull requests
+- Improve documentation
+- Add new themes
 
-**Open an issue** or **start a discussion** in this repository.
+## 📄 License
 
----
+This demo is provided as-is for use with Alloy Connectivity API.
 
-## 📊 Feature Comparison
+## 💡 Tips & Tricks
 
-| Feature | v1.0 | v2.0 | v3.0 | v4.0 (Current) |
-|---------|------|------|------|----------------|
-| Connector Selection | ✅ | ✅ | ✅ | ✅ |
-| Dynamic Forms | ✅ | ✅ | ✅ | ✅ |
-| OAuth Flow | ✅ | ✅ | ✅ | ✅ |
-| Nested Schema Parsing | ❌ | ✅ | ✅ | ✅ |
-| Credential Management | ❌ | ❌ | ✅ | ✅ |
-| API Inspector | ❌ | ❌ | ✅ | ✅ |
-| Dark Mode | ❌ | ❌ | ❌ | ✅ |
-| Search & Filter | ❌ | ❌ | ❌ | ✅ |
-| Recent Activity | ❌ | ❌ | ❌ | ✅ |
-| Keyboard Shortcuts | ❌ | ❌ | ❌ | ✅ |
-| Table View | ❌ | ❌ | ❌ | ✅ |
-| Modular Architecture | ❌ | ❌ | ❌ | ✅ |
+### Creating Custom Themes
+1. Add CSS class in `index.html` (e.g., `body.theme-custom`)
+2. Define your styles
+3. Register in `js/themes.js` THEMES array
+4. Press T to see your theme!
 
----
+### Debugging API Calls
+- Open API Inspector (top-right)
+- Expand any call to see full request/response
+- Copy responses for testing
+- Watch grouped credential checks
 
-## 📝 Changelog
-
-### Version 4.0 (Current) - Enhanced UI/UX
-- ✨ Added dark mode with Alloy brand colors
-- ✨ Added search and filter for connectors
-- ✨ Added recent activity feed with "Run Again"
-- ✨ Added keyboard shortcuts (⌘K, ⌘D, Esc)
-- ✨ Added table view for results
-- ✨ Enhanced step indicator
-- ✨ Modular architecture option
-- 🎨 Professional styling with Alloy branding
-- 🐛 Improved form field organization
-
-### Version 3.0
-- ✨ Added credential management UI
-- ✨ Added live API inspector
-- ✨ Added "View Connections" panel
-
-### Version 2.0
-- ✨ Added recursive schema parsing
-- 🐛 Fixed path parameter extraction
-
-### Version 1.0
-- 🎉 Initial release
+### Keyboard Power User
+- `⌘K` → Search connectors
+- Select connector → `Tab` through resources
+- `⌘D` → Toggle dark mode anytime
+- `T` → Cycle themes
+- `Esc` → Close any modal
 
 ---
 
-## 📄 Use This Demo As
+**Built with ❤️ to showcase the power of Alloy Connectivity API**
 
-✅ **Learning tool** - Understand the Connectivity API  
-✅ **Prototype base** - Kickstart your integration project  
-✅ **Code reference** - See implementation patterns  
-✅ **Testing sandbox** - Try integrations before building  
-✅ **Demo tool** - Show stakeholders what's possible  
-
-## ❌ Don't Use This Demo As
-
-❌ Production code to deploy as-is  
-❌ The only way to build integrations  
-❌ A secure, complete solution  
-❌ Customer-facing production application  
-
----
-
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/lookerb10/alloy-capi-demo/issues)
-- **Questions**: Open a discussion
-- **Alloy Support**: brandon@runalloy.com
-
----
-
-## 📜 License
-
-MIT License - feel free to use this code as a starting point for your projects.
-
----
-
-## 🙏 Acknowledgments
-
-**Built with**: Vanilla JavaScript ES6, Alloy Connectivity API, Tailwind CSS  
-**Maintained by**: Brandon Looker @ Alloy Automation  
-**Version**: 4.0 - Enhanced UI/UX with Dark Mode & Modular Architecture  
-
----
-
-**Made with ❤️ by the Alloy team**
+Press **T** to see the magic! 🎨

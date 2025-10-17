@@ -1,6 +1,7 @@
 // ui.js - UI Components Module (FINAL ENHANCED)
 import { SchemaParser } from './schemaParser.js';
 import { API } from './api.js';
+import { getCurrentTheme } from './themes.js'; // ADD THIS LINE
 
 export const UI = {
   renderStepIndicator(currentStep) {
@@ -60,6 +61,10 @@ export const UI = {
             ${darkMode ? '☀️ Light' : '🌙 Dark'}
             <span class="kbd">⌘D</span>
           </button>
+          <button id="theme-btn" class="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 flex items-center gap-2">
+            🎨 Theme
+            <span class="kbd">T</span>
+          </button>
         </div>
       </div>
     `;
@@ -76,6 +81,20 @@ export const UI = {
   },
   
   renderConnectors(connectors, loading, searchQuery = '', categoryFilter = 'all', recentActivity = []) {
+    const currentTheme = getCurrentTheme();
+    
+    // Route to theme-specific layout
+    if (currentTheme === 'theme-enterprise') {
+      return this.renderConnectorsEnterprise(connectors, loading, searchQuery, categoryFilter);
+    }
+    if (currentTheme === 'theme-minimal') {
+      return this.renderConnectorsMinimal(connectors, loading, searchQuery, categoryFilter);
+    }
+    if (currentTheme === 'theme-developer') {
+      return this.renderConnectorsDeveloper(connectors, loading, searchQuery, categoryFilter);
+    }
+    
+    // DEFAULT: Original Alloy Blue theme - YOUR EXACT CODE PRESERVED
     if (loading) {
       return `
         <div class="bg-white rounded-lg border p-12 text-center">
@@ -179,7 +198,7 @@ export const UI = {
                       ? 'bg-green-100 text-green-700 border border-green-200' 
                       : 'bg-gray-100 text-gray-600 border border-gray-200'
                   }" onclick="event.stopPropagation(); window.alloyDemo.showCredentialModal(${originalIdx})">
-                    ${connector.credentialStatus === 'connected' ? '✓ Connected' : '🔓 Connect'}
+                    ${connector.credentialStatus === 'connected' ? '✓ Connected' : '🔒 Connect'}
                   </div>
                   <div class="flex items-center gap-3">
                     ${connector.icon ? 
@@ -205,6 +224,224 @@ export const UI = {
               </button>
             </div>
           ` : ''}
+        </div>
+      </div>
+    `;
+  },
+  // ADD THESE 3 NEW METHODS AFTER renderConnectors():
+
+  renderConnectorsEnterprise(connectors, loading, searchQuery, categoryFilter) {
+    if (loading) {
+      return `
+        <div class="bg-white rounded-lg border p-12 text-center">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto" style="border-bottom-color: #0f766e;"></div>
+          <p class="mt-4 text-gray-600">Loading connectors...</p>
+        </div>
+      `;
+    }
+
+    const categories = ['all', ...new Set(connectors.flatMap(c => c.category || []))];
+    let filteredConnectors = connectors;
+    
+    if (searchQuery) {
+      filteredConnectors = filteredConnectors.filter(c => 
+        c.name.toLowerCase().includes(searchQuery)
+      );
+    }
+    
+    if (categoryFilter !== 'all') {
+      filteredConnectors = filteredConnectors.filter(c => 
+        (c.category || []).includes(categoryFilter)
+      );
+    }
+
+    return `
+      <div class="page-container">
+        <div class="sidebar">
+          <h1>Integrations</h1>
+          
+          <input 
+            type="text" 
+            id="connector-search"
+            placeholder="Search..."
+            style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; margin: 20px 0;"
+            value="${searchQuery}"
+          />
+          
+          <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; font-weight: 600; margin-bottom: 12px;">
+            Categories
+          </div>
+          <div class="space-y-1">
+            ${categories.map(cat => `
+              <div 
+                class="category-item px-4 py-2 rounded-lg cursor-pointer ${categoryFilter === cat ? 'bg-teal-50 text-teal-700' : 'hover:bg-gray-100'}"
+                onclick="window.alloyDemo.state.categoryFilter='${cat}'; window.alloyDemo.render();"
+              >
+                ${cat === 'all' ? 'All Integrations' : cat}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        
+        <div class="main-content">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
+            <div>
+              <h2 style="font-size: 1.75rem; font-weight: 600; color: #0f172a; margin-bottom: 4px;">
+                Available Integrations
+              </h2>
+              <p style="color: #64748b; font-size: 14px;">
+                Showing ${filteredConnectors.length} of ${connectors.length} connectors
+              </p>
+            </div>
+            <div style="display: flex; gap: 24px; font-size: 14px;">
+              <div>
+                <div style="font-size: 24px; font-weight: 700; color: #0f766e;">${filteredConnectors.filter(c => c.credentialStatus === 'connected').length}</div>
+                <div style="color: #64748b;">Connected</div>
+              </div>
+              <div>
+                <div style="font-size: 24px; font-weight: 700; color: #64748b;">${filteredConnectors.length}</div>
+                <div style="color: #64748b;">Total</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="connector-grid">
+            ${filteredConnectors.map((connector) => {
+              const originalIdx = connectors.indexOf(connector);
+              return `
+                <div class="connector-card" data-connector-idx="${originalIdx}">
+                  ${connector.icon ? 
+                    `<img src="${connector.icon}" alt="${connector.name}" style="width: 32px; height: 32px; border-radius: 4px;">` :
+                    `<div style="width: 32px; height: 32px; background: #e2e8f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: bold;">${connector.name.charAt(0)}</div>`
+                  }
+                  <div style="flex: 1; min-width: 0;">
+                    <div style="font-weight: 600; font-size: 15px; color: #0f172a;">${connector.name}</div>
+                    <div style="font-size: 13px; color: #64748b;">${connector.category?.[0] || 'Integration'}</div>
+                  </div>
+                  <div style="font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 6px; ${connector.credentialStatus === 'connected' ? 'background: #dcfce7; color: #166534;' : 'background: #f1f5f9; color: #64748b;'}">
+                    ${connector.credentialStatus === 'connected' ? '✓ Active' : 'Inactive'}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  renderConnectorsMinimal(connectors, loading, searchQuery, categoryFilter) {
+    if (loading) {
+      return `
+        <div class="text-center py-12">
+          <div class="animate-spin rounded-full h-16 w-16 border-b-4 mx-auto" style="border-bottom-color: #8b5cf6;"></div>
+          <p class="mt-4 text-gray-600">Loading connectors...</p>
+        </div>
+      `;
+    }
+
+    let filteredConnectors = connectors;
+    
+    if (searchQuery) {
+      filteredConnectors = filteredConnectors.filter(c => 
+        c.name.toLowerCase().includes(searchQuery)
+      );
+    }
+    
+    if (categoryFilter !== 'all') {
+      filteredConnectors = filteredConnectors.filter(c => 
+        (c.category || []).includes(categoryFilter)
+      );
+    }
+
+    return `
+      <div>
+        <h1>Integrations</h1>
+        <p class="subtitle">Connect your favorite apps in seconds</p>
+        
+        <div class="connector-grid">
+          ${filteredConnectors.map((connector) => {
+            const originalIdx = connectors.indexOf(connector);
+            return `
+              <div class="connector-card" data-connector-idx="${originalIdx}">
+                ${connector.icon ? 
+                  `<img src="${connector.icon}" alt="${connector.name}" style="width: 80px !important; height: 80px !important; margin: 0 auto 24px !important; border-radius: 16px;">` :
+                  `<div style="width: 80px; height: 80px; background: #e5e7eb; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 32px; margin: 0 auto 24px;">${connector.name.charAt(0)}</div>`
+                }
+                <h3>${connector.name}</h3>
+                <p style="color: #6b7280; font-size: 14px; margin-bottom: 20px;">${connector.category?.[0] || 'Integration'}</p>
+                <div style="font-size: 13px; font-weight: 700; padding: 10px 20px; border-radius: 12px; display: inline-block; ${connector.credentialStatus === 'connected' ? 'background: linear-gradient(135deg, #10b981, #059669); color: white;' : 'background: #f3f4f6; color: #6b7280;'}">
+                  ${connector.credentialStatus === 'connected' ? '✓ Connected' : 'Connect'}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  },
+
+  renderConnectorsDeveloper(connectors, loading, searchQuery, categoryFilter) {
+    if (loading) {
+      return `
+        <div class="text-center py-12">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto" style="border-bottom-color: #00ff41;"></div>
+          <p class="mt-4" style="color: #00ff41;">LOADING CONNECTORS...</p>
+        </div>
+      `;
+    }
+
+    let filteredConnectors = connectors;
+    
+    if (searchQuery) {
+      filteredConnectors = filteredConnectors.filter(c => 
+        c.name.toLowerCase().includes(searchQuery)
+      );
+    }
+    
+    if (categoryFilter !== 'all') {
+      filteredConnectors = filteredConnectors.filter(c => 
+        (c.category || []).includes(categoryFilter)
+      );
+    }
+
+    return `
+      <div class="page-container">
+        <h1>alloy-integrations --list</h1>
+        
+        <div style="padding: 16px 24px; border-bottom: 1px solid #1a2332; display: flex; justify-content: space-between; align-items: center;">
+          <div style="font-size: 13px;">
+            <span style="color: #6b7280;">Found</span> 
+            <span style="color: #00ff41; font-weight: bold;">${filteredConnectors.length}</span> 
+            <span style="color: #6b7280;">integrations</span>
+          </div>
+        </div>
+        
+        <div class="connector-grid">
+          ${filteredConnectors.map((connector, idx) => {
+            const originalIdx = connectors.indexOf(connector);
+            return `
+              <div class="connector-card" data-connector-idx="${originalIdx}">
+                <span style="color: #6b7280; font-size: 11px; width: 40px;">${String(idx + 1).padStart(3, '0')}</span>
+                ${connector.icon ? 
+                  `<img src="${connector.icon}" alt="${connector.name}" style="width: 20px; height: 20px;">` :
+                  `<div style="width: 20px; height: 20px; background: #1a2332; border-radius: 2px;"></div>`
+                }
+                <div style="flex: 1; min-width: 0;">
+                  <span style="font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">${connector.name}</span>
+                </div>
+                <span class="status-badge ${connector.credentialStatus === 'connected' ? 'status-connected' : 'status-disconnected'}">
+                  ${connector.credentialStatus === 'connected' ? '[ONLINE]' : '[OFFLINE]'}
+                </span>
+                <span style="color: #6b7280; font-size: 11px;">${(connector.category?.[0] || 'INTEGRATION').toUpperCase()}</span>
+              </div>
+            `;
+          }).join('')}
+        </div>
+        
+        <div style="padding: 16px 24px; border-top: 1px solid #1a2332; font-size: 12px; color: #6b7280;">
+          <span style="color: #00ff41;">$</span> Press [T] to cycle themes | 
+          <span style="color: #00ff41;">${filteredConnectors.filter(c => c.credentialStatus === 'connected').length}</span> active connections
         </div>
       </div>
     `;
