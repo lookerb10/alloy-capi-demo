@@ -1,7 +1,7 @@
-// ui.js - UI Components Module (FINAL ENHANCED)
+// ui.js - UI Components Module (COMPLETE WITH ALL THEMES)
 import { SchemaParser } from './schemaParser.js';
 import { API } from './api.js';
-import { getCurrentTheme } from './themes.js'; // ADD THIS LINE
+import { getCurrentTheme } from './themes.js';
 
 export const UI = {
   renderStepIndicator(currentStep) {
@@ -83,7 +83,6 @@ export const UI = {
   renderConnectors(connectors, loading, searchQuery = '', categoryFilter = 'all', recentActivity = []) {
     const currentTheme = getCurrentTheme();
     
-    // Route to theme-specific layout
     if (currentTheme === 'theme-enterprise') {
       return this.renderConnectorsEnterprise(connectors, loading, searchQuery, categoryFilter);
     }
@@ -94,7 +93,7 @@ export const UI = {
       return this.renderConnectorsDeveloper(connectors, loading, searchQuery, categoryFilter);
     }
     
-    // DEFAULT: Original Alloy Blue theme - YOUR EXACT CODE PRESERVED
+    // DEFAULT ALLOY BLUE THEME
     if (loading) {
       return `
         <div class="bg-white rounded-lg border p-12 text-center">
@@ -193,20 +192,28 @@ export const UI = {
               const originalIdx = connectors.indexOf(connector);
               return `
                 <div data-connector-idx="${originalIdx}" class="connector-card border-2 rounded-lg p-4 cursor-pointer hover:shadow-lg transition-all relative" style="border-color: #e5e7eb;">
-                  <div class="absolute top-3 right-3 text-xs font-semibold px-2 py-1 rounded cursor-pointer transition-all hover:scale-105 ${
-                    connector.credentialStatus === 'connected' 
-                      ? 'bg-green-100 text-green-700 border border-green-200' 
-                      : 'bg-gray-100 text-gray-600 border border-gray-200'
-                  }" onclick="event.stopPropagation(); window.alloyDemo.showCredentialModal(${originalIdx})">
-                    ${connector.credentialStatus === 'connected' ? '✓ Connected' : '🔒 Connect'}
+                  <div class="absolute top-3 right-3 flex flex-col gap-1 items-end" style="max-width: 40%;">
+                    <div class="text-xs font-semibold px-2 py-1 rounded cursor-pointer transition-all hover:scale-105 ${
+                      connector.credentialStatus === 'connected' 
+                        ? 'bg-green-100 text-green-700 border border-green-200' 
+                        : 'bg-gray-100 text-gray-600 border border-gray-200'
+                    }" onclick="event.stopPropagation(); window.alloyDemo.showCredentialModal(${originalIdx})">
+                      ${connector.credentialStatus === 'connected' ? '✓ Connected' : '🔒 Connect'}
+                    </div>
+                    ${connector.authConfigRequired ? `
+                      <div class="config-required-badge text-xs font-semibold px-2 py-1 rounded bg-purple-50 text-purple-700 border border-purple-200 cursor-help transition-all hover:bg-purple-100 hover:shadow-sm">
+                        ⚙️ Setup Req'd
+                        <span class="tooltip-text">Requires your own client ID and secret to authenticate</span>
+                      </div>
+                    ` : ''}
                   </div>
-                  <div class="flex items-center gap-3">
+                  <div class="flex items-center gap-3" style="${connector.authConfigRequired ? 'padding-right: 130px;' : 'padding-right: 95px;'}">
                     ${connector.icon ? 
-                      `<img src="${connector.icon}" alt="${connector.name}" class="w-12 h-12 rounded-lg">` :
-                      `<div class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center font-bold">${connector.name.charAt(0)}</div>`
+                      `<img src="${connector.icon}" alt="${connector.name}" class="w-12 h-12 rounded-lg flex-shrink-0" style="background: white; padding: 4px;">` :
+                      `<div class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center font-bold flex-shrink-0">${connector.name.charAt(0)}</div>`
                     }
                     <div class="flex-1 min-w-0">
-                      <h3 class="font-semibold text-base truncate">${connector.name}</h3>
+                      <h3 class="font-semibold text-base">${connector.name}</h3>
                       <p class="text-xs text-gray-600 truncate">${connector.category?.join(', ') || 'Integration'}</p>
                     </div>
                   </div>
@@ -228,7 +235,6 @@ export const UI = {
       </div>
     `;
   },
-  // ADD THESE 3 NEW METHODS AFTER renderConnectors():
 
   renderConnectorsEnterprise(connectors, loading, searchQuery, categoryFilter) {
     if (loading) {
@@ -318,8 +324,16 @@ export const UI = {
                     <div style="font-weight: 600; font-size: 15px; color: #0f172a;">${connector.name}</div>
                     <div style="font-size: 13px; color: #64748b;">${connector.category?.[0] || 'Integration'}</div>
                   </div>
-                  <div style="font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 6px; ${connector.credentialStatus === 'connected' ? 'background: #dcfce7; color: #166534;' : 'background: #f1f5f9; color: #64748b;'}">
-                    ${connector.credentialStatus === 'connected' ? '✓ Active' : 'Inactive'}
+                  <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-end;">
+                    <div style="font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 6px; ${connector.credentialStatus === 'connected' ? 'background: #dcfce7; color: #166534;' : 'background: #f1f5f9; color: #64748b;'}">
+                      ${connector.credentialStatus === 'connected' ? '✓ Active' : 'Inactive'}
+                    </div>
+                    ${connector.authConfigRequired ? `
+                      <div class="config-required-badge" style="font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; background: #faf5ff; color: #7c3aed; border: 1px solid #e9d5ff; cursor: help;">
+                        ⚙️ Setup
+                        <span class="tooltip-text">Requires your own client ID and secret to authenticate</span>
+                      </div>
+                    ` : ''}
                   </div>
                 </div>
               `;
@@ -370,8 +384,16 @@ export const UI = {
                 }
                 <h3>${connector.name}</h3>
                 <p style="color: #6b7280; font-size: 14px; margin-bottom: 20px;">${connector.category?.[0] || 'Integration'}</p>
-                <div style="font-size: 13px; font-weight: 700; padding: 10px 20px; border-radius: 12px; display: inline-block; ${connector.credentialStatus === 'connected' ? 'background: linear-gradient(135deg, #10b981, #059669); color: white;' : 'background: #f3f4f6; color: #6b7280;'}">
-                  ${connector.credentialStatus === 'connected' ? '✓ Connected' : 'Connect'}
+                <div style="display: flex; flex-direction: column; gap: 8px; align-items: center;">
+                  <div style="font-size: 13px; font-weight: 700; padding: 10px 20px; border-radius: 12px; display: inline-block; ${connector.credentialStatus === 'connected' ? 'background: linear-gradient(135deg, #10b981, #059669); color: white;' : 'background: #f3f4f6; color: #6b7280;'}">
+                    ${connector.credentialStatus === 'connected' ? '✓ Connected' : 'Connect'}
+                  </div>
+                  ${connector.authConfigRequired ? `
+                    <div class="config-required-badge" style="font-size: 12px; font-weight: 700; padding: 8px 16px; border-radius: 12px; background: #faf5ff; color: #7c3aed; border: 1px solid #e9d5ff; cursor: help;">
+                      ⚙️ Setup Req'd
+                      <span class="tooltip-text">Requires your own client ID and secret to authenticate</span>
+                    </div>
+                  ` : ''}
                 </div>
               </div>
             `;
@@ -430,9 +452,17 @@ export const UI = {
                 <div style="flex: 1; min-width: 0;">
                   <span style="font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">${connector.name}</span>
                 </div>
-                <span class="status-badge ${connector.credentialStatus === 'connected' ? 'status-connected' : 'status-disconnected'}">
-                  ${connector.credentialStatus === 'connected' ? '[ONLINE]' : '[OFFLINE]'}
-                </span>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <span class="status-badge ${connector.credentialStatus === 'connected' ? 'status-connected' : 'status-disconnected'}">
+                    ${connector.credentialStatus === 'connected' ? '[ONLINE]' : '[OFFLINE]'}
+                  </span>
+                  ${connector.authConfigRequired ? `
+                    <span class="config-required-badge status-badge" style="background: rgba(124, 58, 237, 0.2); color: #a78bfa; cursor: help;">
+                      [SETUP]
+                      <span class="tooltip-text">Requires your own client ID and secret to authenticate</span>
+                    </span>
+                  ` : ''}
+                </div>
                 <span style="color: #6b7280; font-size: 11px;">${(connector.category?.[0] || 'INTEGRATION').toUpperCase()}</span>
               </div>
             `;
@@ -446,7 +476,6 @@ export const UI = {
       </div>
     `;
   },
-  
   renderResources(selectedConnector, resources, loading) {
     return `
       <div class="bg-white rounded-lg border p-6">
@@ -688,7 +717,6 @@ export const UI = {
     }
     
     if (viewMode === 'table') {
-      // Flatten the data structure for better table view
       const flattenObject = (obj, prefix = '') => {
         const flattened = [];
         
@@ -698,17 +726,14 @@ export const UI = {
           if (value === null || value === undefined) {
             flattened.push([newKey, String(value)]);
           } else if (Array.isArray(value)) {
-            // For arrays, show the first few items or the whole array if small
             if (value.length === 0) {
               flattened.push([newKey, '[]']);
             } else if (value.length <= 3 && value.every(item => typeof item !== 'object')) {
-              // Simple array with few items
               flattened.push([newKey, value.join(', ')]);
             } else {
-              // Complex array or many items
               flattened.push([newKey, `Array (${value.length} items)`]);
               value.forEach((item, idx) => {
-                if (idx < 5) { // Show first 5 items
+                if (idx < 5) {
                   if (typeof item === 'object' && item !== null) {
                     flattened.push(...flattenObject(item, `${newKey}[${idx}]`));
                   } else {
@@ -721,10 +746,8 @@ export const UI = {
               }
             }
           } else if (typeof value === 'object') {
-            // Nested object - flatten it
             flattened.push(...flattenObject(value, newKey));
           } else {
-            // Primitive value
             flattened.push([newKey, String(value)]);
           }
         }
@@ -798,7 +821,7 @@ export const UI = {
             <span class="font-semibold">🔍 API Inspector</span>
             <span class="px-2 py-0.5 rounded badge-primary text-xs font-bold">${totalCalls}</span>
           </div>
-          <div class="text-gray-600 text-xl transition-transform ${collapsed ? 'rotate-180' : ''}">▼</div>
+          <div class="font-bold transition-transform ${collapsed ? 'rotate-180' : ''}" style="color: var(--alloy-blue); font-size: 18px;">▼</div>
         </div>
         ${!collapsed ? `
           <div class="overflow-y-auto max-h-80 p-3 space-y-2">
@@ -813,7 +836,7 @@ export const UI = {
                 const avgDuration = Math.round(call.totalDuration / call.callCount);
                 return `
                   <details class="text-xs bg-blue-50 border border-blue-200 rounded">
-                    <summary class="p-2 cursor-pointer hover:bg-blue-100">
+                    <summary class="p-2 cursor-pointer hover:bg-blue-100" style="color: var(--alloy-blue);">
                       <div class="flex items-center gap-2 mb-1">
                         <span class="px-2 py-0.5 rounded font-bold text-white text-xs bg-green-500">GET</span>
                         <span class="px-2 py-0.5 rounded text-xs bg-green-100 text-green-700 font-semibold">200</span>
@@ -834,7 +857,7 @@ export const UI = {
               
               return `
                 <details class="text-xs bg-gray-50 border rounded hover:shadow-sm">
-                  <summary class="p-2 cursor-pointer hover:bg-gray-100">
+                  <summary class="p-2 cursor-pointer hover:bg-gray-100" style="color: var(--alloy-blue);">
                     <div class="flex items-center gap-2 mb-1">
                       <span class="px-2 py-0.5 rounded font-bold text-white text-xs ${
                         call.method === 'GET' ? 'bg-green-500' :
@@ -899,7 +922,7 @@ export const UI = {
               </h3>
               <p class="text-xs text-gray-600 mt-0.5">${connectedConnectors.length} of ${connectors.length} platforms connected</p>
             </div>
-            <button id="close-connections-modal" class="text-gray-600 hover:text-gray-900 text-2xl leading-none w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded" onclick="document.getElementById('connections-modal').remove();">&times;</button>
+            <button id="close-connections-modal" class="text-gray-600 hover:text-gray-900 text-2xl leading-none w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded" onclick="document.getElementById('connections-modal').remove();">×</button>
           </div>
           
           <div class="overflow-y-auto flex-1">
@@ -911,7 +934,7 @@ export const UI = {
                 ${connectedConnectors.map((connector) => `
                   <div class="px-4 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100 flex items-center gap-3" onclick="window.alloyDemo.showCredentialModalById('${connector.id}')">
                     ${connector.icon ? 
-                      `<img src="${connector.icon}" alt="${connector.name}" class="w-8 h-8 rounded flex-shrink-0">` :
+                      `<img src="${connector.icon}" alt="${connector.name}" class="w-8 h-8 rounded flex-shrink-0" style="background: white; padding: 2px;">` :
                       `<div class="w-8 h-8 bg-gray-200 rounded flex items-center justify-center font-bold text-sm flex-shrink-0">${connector.name.charAt(0)}</div>`
                     }
                     <div class="flex-1 min-w-0">
@@ -927,19 +950,19 @@ export const UI = {
             ${notConnectedConnectors.length > 0 ? `
               <div>
                 <div class="px-4 py-2 bg-gray-50 text-xs font-semibold text-gray-700 sticky top-0">
-                  🔓 Available to Connect (${notConnectedConnectors.length})
+                  🔒 Available to Connect (${notConnectedConnectors.length})
                 </div>
                 ${notConnectedConnectors.map((connector) => `
                   <div class="px-4 py-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100 flex items-center gap-3 opacity-70" onclick="window.alloyDemo.showCredentialModalById('${connector.id}')">
                     ${connector.icon ? 
-                      `<img src="${connector.icon}" alt="${connector.name}" class="w-8 h-8 rounded flex-shrink-0">` :
+                      `<img src="${connector.icon}" alt="${connector.name}" class="w-8 h-8 rounded flex-shrink-0" style="background: white; padding: 2px;">` :
                       `<div class="w-8 h-8 bg-gray-200 rounded flex items-center justify-center font-bold text-sm flex-shrink-0">${connector.name.charAt(0)}</div>`
                     }
                     <div class="flex-1 min-w-0">
                       <div class="font-semibold text-sm">${connector.name}</div>
                       <div class="text-xs text-gray-500">Not connected</div>
                     </div>
-                    <span class="text-gray-300 text-lg flex-shrink-0">○</span>
+                    <span class="text-gray-300 text-lg flex-shrink-0">◯</span>
                   </div>
                 `).join('')}
               </div>
@@ -962,7 +985,7 @@ export const UI = {
         <div class="bg-white rounded-lg p-6 max-w-md w-full">
           <div class="flex items-center gap-3 mb-6 pb-4 border-b-2">
             ${connector.icon ? 
-              `<img src="${connector.icon}" alt="${connector.name}" class="w-12 h-12 rounded-lg">` :
+              `<img src="${connector.icon}" alt="${connector.name}" class="w-12 h-12 rounded-lg" style="background: white; padding: 4px;">` :
               `<div class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center font-bold text-xl">${connector.name.charAt(0)}</div>`
             }
             <div class="flex-1">
@@ -1006,15 +1029,11 @@ export const UI = {
             </div>
             
             <button onclick="window.alloyDemo.connectPlatform('${connector.id}')" class="w-full px-4 py-3 btn-primary rounded-md font-semibold">
-              🔐 Connect ${connector.name}
+              🔒 Connect ${connector.name}
             </button>
           `}
         </div>
       </div>
     `;
-  },
-  
-  renderTemplatesModal(templates) {
-    return '';
   }
 };

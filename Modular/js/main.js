@@ -4,7 +4,7 @@ import { API } from './api.js';
 import { SchemaParser } from './schemaParser.js';
 import { DemoDataGenerator } from './demoData.js';
 import { UI } from './ui.js';
-import { cycleTheme, initTheme } from './themes.js'; // ADD THIS LINE
+import { cycleTheme, initTheme } from './themes.js';
 
 class AlloyDemo {
   constructor() {
@@ -44,40 +44,34 @@ class AlloyDemo {
     
     API.onHistoryUpdate(() => this.render());
     
-    // Load dark mode preference
     const savedDarkMode = localStorage.getItem('alloy_dark_mode') === 'true';
     if (savedDarkMode) {
       this.state.darkMode = true;
       document.body.classList.add('dark-mode');
     }
     
-    // Load recent activity
     this.loadRecentActivity();
   }
   
   setupKeyboardShortcuts() {
     document.addEventListener('keydown', (e) => {
-      // Cmd/Ctrl + K for search
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         const searchInput = document.getElementById('connector-search');
         if (searchInput) searchInput.focus();
       }
       
-      // Esc to close modals
       if (e.key === 'Escape') {
         document.getElementById('connections-modal')?.remove();
         document.getElementById('credential-modal')?.remove();
         document.getElementById('templates-modal')?.remove();
       }
       
-      // Cmd/Ctrl + D for dark mode
       if ((e.metaKey || e.ctrlKey) && e.key === 'd') {
         e.preventDefault();
         this.toggleDarkMode();
       }
       
-      // ADD THIS: T key for theme cycling
       if (e.key.toLowerCase() === 't' && document.activeElement.tagName !== 'INPUT') {
         cycleTheme();
       }
@@ -97,60 +91,6 @@ class AlloyDemo {
     } catch {
       return [];
     }
-  }
-  
-  saveTemplate() {
-    const { selectedAction, selectedConnector, formData, actionSchema } = this.state;
-    if (!selectedAction || !formData || Object.keys(formData).length === 0) {
-      alert('Please fill out the form before saving a template');
-      return;
-    }
-    
-    const templateName = prompt('Enter a name for this template:');
-    if (!templateName) return;
-    
-    const template = {
-      id: Date.now().toString(),
-      name: templateName,
-      connectorId: selectedConnector.id,
-      connectorName: selectedConnector.name,
-      actionId: selectedAction.id,
-      actionName: selectedAction.name || selectedAction.displayName,
-      formData: { ...formData },
-      createdAt: new Date().toISOString()
-    };
-    
-    this.state.savedTemplates.push(template);
-    localStorage.setItem('alloy_templates', JSON.stringify(this.state.savedTemplates));
-    alert('✅ Template saved successfully!');
-    this.render();
-  }
-  
-  loadTemplate(templateId) {
-    const template = this.state.savedTemplates.find(t => t.id === templateId);
-    if (!template) return;
-    
-    // Set form data
-    this.state.formData = { ...template.formData };
-    
-    // Update UI
-    Object.keys(template.formData).forEach(fieldName => {
-      const inputElement = document.querySelector(`[data-field-name="${fieldName}"]`);
-      if (inputElement) {
-        inputElement.value = template.formData[fieldName];
-      }
-    });
-    
-    document.getElementById('templates-modal')?.remove();
-    alert('✅ Template loaded successfully!');
-  }
-  
-  deleteTemplate(templateId) {
-    if (!confirm('Are you sure you want to delete this template?')) return;
-    
-    this.state.savedTemplates = this.state.savedTemplates.filter(t => t.id !== templateId);
-    localStorage.setItem('alloy_templates', JSON.stringify(this.state.savedTemplates));
-    this.render();
   }
   
   loadRecentActivity() {
@@ -182,17 +122,14 @@ class AlloyDemo {
     const activity = this.state.recentActivity.find(a => a.id === activityId);
     if (!activity) return;
     
-    // Find connector
     const connector = this.state.connectors.find(c => c.id === activity.connectorId);
     if (!connector) {
       alert('Connector not found');
       return;
     }
     
-    // Load the connector and action
     await this.selectConnector(connector);
     
-    // Load resources and find the action
     const resource = this.state.resources.find(r => 
       r.actions?.some(a => a.id === activity.actionId)
     );
@@ -202,10 +139,8 @@ class AlloyDemo {
       if (action) {
         await this.selectAction(action, resource);
         
-        // Load the saved form data
         this.state.formData = { ...activity.formData };
         
-        // Update UI
         setTimeout(() => {
           Object.keys(activity.formData).forEach(fieldName => {
             const inputElement = document.querySelector(`[data-field-name="${fieldName}"]`);
@@ -235,18 +170,36 @@ class AlloyDemo {
           try {
             const credResponse = await API.call(`/connectors/${conn.id}/credentials`, 'GET', null, true);
             const creds = credResponse.credentials || credResponse.data || [];
+            
+            let authConfigRequired = false;
+            try {
+              const metadataResponse = await API.call(
+                `/connectors/${conn.id}/credentials/metadata`,
+                'GET',
+                null,
+                false
+              );
+              const metadataArray = metadataResponse.metadata || metadataResponse;
+              const metadata = Array.isArray(metadataArray) ? metadataArray[0] : metadataArray;
+              authConfigRequired = metadata?.authConfigRequired || false;
+            } catch (metadataError) {
+              console.warn(`Could not fetch metadata for ${conn.id}:`, metadataError);
+            }
+            
             return { 
               ...conn, 
               credentialStatus: creds.length > 0 ? 'connected' : 'not_connected',
               credentialCount: creds.length,
-              credentials: creds
+              credentials: creds,
+              authConfigRequired: authConfigRequired
             };
           } catch {
             return { 
               ...conn, 
               credentialStatus: 'not_connected',
               credentialCount: 0,
-              credentials: []
+              credentials: [],
+              authConfigRequired: false
             };
           }
         })
@@ -279,11 +232,9 @@ class AlloyDemo {
   }
   
   async selectAction(action, resource) {
-    console.log('🎯 selectAction called with:', action);
     this.setState({ loading: true, step: 3 });
     
     try {
-      console.log('📡 Fetching action metadata...');
       const response = await API.call(
         `/connectors/${this.state.selectedConnector.id}/actions/${action.id}`, 
         'GET', 
@@ -291,13 +242,8 @@ class AlloyDemo {
         false
       );
       
-      console.log('📦 Raw API response:', response);
-      
       const fullAction = response.action || response.data || response;
-      console.log('🔍 Full action data:', fullAction);
-      
       const schema = SchemaParser.parseActionSchema(fullAction);
-      console.log('📋 Parsed schema:', schema);
       
       this.setState({
         actionSchema: schema,
@@ -306,11 +252,9 @@ class AlloyDemo {
         loading: false
       });
     } catch (error) {
-      console.error('❌ Failed to load action metadata:', error);
-      console.log('⚠️ Falling back to basic action data');
+      console.error('Failed to load action metadata:', error);
       
       const schema = SchemaParser.parseActionSchema(action);
-      console.log('📋 Fallback parsed schema:', schema);
       
       this.setState({
         actionSchema: schema,
@@ -323,7 +267,6 @@ class AlloyDemo {
   
   updateFormData(fieldName, value) {
     this.state.formData[fieldName] = value;
-    console.log('Form data updated:', fieldName, '=', value);
   }
   
   autoFillForm() {
@@ -349,7 +292,6 @@ class AlloyDemo {
     });
     
     this.state.formData = newFormData;
-    console.log('✨ Form auto-filled with sample data');
   }
   
   async executeAction() {
@@ -378,7 +320,6 @@ class AlloyDemo {
         const creds = credResponse.credentials || credResponse.data || [];
         
         if (creds.length === 0) {
-          console.log('No credentials found, starting OAuth flow');
           await this.startOAuthFlow(selectedConnector.id);
           
           const retryCredResponse = await API.call(
@@ -398,7 +339,6 @@ class AlloyDemo {
         }
       } catch (error) {
         if (error.message.includes('401') || error.message.includes('403') || error.message.includes('404')) {
-          console.log('Starting OAuth flow due to auth error');
           await this.startOAuthFlow(selectedConnector.id);
           
           const retryCredResponse = await API.call(
@@ -448,12 +388,48 @@ class AlloyDemo {
   }
   
   async startOAuthFlow(connectorId) {
-    return new Promise((resolve, reject) => {
-      const modal = document.createElement('div');
-      modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    return new Promise(async (resolve, reject) => {
+      let requiredFields = [];
+      let dataRequiredFields = [];
+      let dataProperties = {};
+      
+      try {
+        const metadataResponse = await API.call(
+          `/connectors/${connectorId}/credentials/metadata`,
+          'GET',
+          null,
+          false
+        );
+        
+        const metadataArray = metadataResponse.metadata || metadataResponse;
+        const metadata = Array.isArray(metadataArray) ? metadataArray[0] : metadataArray;
+        
+        if (metadata?.inputSchema) {
+          requiredFields = metadata.inputSchema.required || [];
+          
+          if (metadata.inputSchema.properties?.data) {
+            dataRequiredFields = metadata.inputSchema.properties.data.required || [];
+            dataProperties = metadata.inputSchema.properties.data.properties || {};
+          }
+        }
+      } catch (error) {
+        console.warn('⚠️ Could not fetch credential metadata:', error);
+      }
       
       const connector = this.state.connectors.find(c => c.id === connectorId) || this.state.selectedConnector;
       const connectorName = connector?.name || connectorId;
+      
+      const dynamicFields = dataRequiredFields.map(fieldName => {
+        const fieldSchema = dataProperties[fieldName] || {};
+        return {
+          name: fieldName,
+          type: fieldSchema.type || 'string',
+          label: fieldName.charAt(0).toUpperCase() + fieldName.slice(1).replace(/_/g, ' ')
+        };
+      });
+      
+      const modal = document.createElement('div');
+      modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
       
       modal.innerHTML = `
         <div class="bg-white rounded-lg p-8 max-w-md w-full">
@@ -462,10 +438,26 @@ class AlloyDemo {
             <strong class="text-yellow-700">Authentication Required</strong>
             <p class="text-yellow-600">You need to authenticate with ${connectorName} before using this action.</p>
           </div>
-          <div class="text-center">
-            <p class="mb-4">Click the button below to authenticate:</p>
-            <button id="start-oauth-btn" class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 mb-4">
-              🔐 Authenticate with ${connectorName}
+          <div class="space-y-4">
+            ${dynamicFields.map(field => `
+              <div>
+                <label class="block text-sm font-semibold mb-2">${field.label} *</label>
+                <input 
+                  type="text" 
+                  id="oauth-${field.name}" 
+                  class="w-full px-3 py-2 border rounded-md" 
+                  placeholder="${field.label === 'Subdomain' ? 'your-company' : `Enter ${field.label.toLowerCase()}`}"
+                >
+                <p class="text-xs text-gray-500 mt-1">
+                  ${field.label === 'Subdomain' 
+                    ? `Enter your ${connectorName} subdomain (e.g., "acme")` 
+                    : `Enter your ${connectorName} ${field.label.toLowerCase()}`
+                  }
+                </p>
+              </div>
+            `).join('')}
+            <button id="start-oauth-btn" class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">
+              🔒 Authenticate with ${connectorName}
             </button>
             <button id="cancel-oauth-btn" class="w-full bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300">
               Cancel
@@ -478,11 +470,27 @@ class AlloyDemo {
       document.getElementById('start-oauth-btn').onclick = async () => {
         try {
           const config = Config.getConfig();
+          
+          const redirectUri = 'https://embedded.runalloy.com/oauth/callback';
+          
           const credentialRequest = {
             userId: config.userId,
             authenticationType: 'oauth2',
-            redirectUri: window.location.origin + '/oauth-callback'
+            redirectUri: redirectUri
           };
+          
+          if (dynamicFields.length > 0) {
+            credentialRequest.data = {};
+            
+            for (const field of dynamicFields) {
+              const value = document.getElementById(`oauth-${field.name}`)?.value?.trim();
+              if (!value) {
+                alert(`Please enter ${field.label}`);
+                return;
+              }
+              credentialRequest.data[field.name] = value;
+            }
+          }
           
           const oauthResponse = await API.call(
             `/connectors/${connectorId}/credentials`,
@@ -685,7 +693,9 @@ class AlloyDemo {
       await this.loadConnectors();
       alert('✅ Connected successfully!');
     } catch (error) {
-      alert(`Error connecting: ${error.message}`);
+      if (error.message !== 'Authentication cancelled') {
+        alert(`Error connecting: ${error.message}`);
+      }
     }
   }
   
@@ -762,36 +772,17 @@ class AlloyDemo {
   }
   
   attachEventListeners() {
-    // Header buttons
     document.getElementById('reset-btn')?.addEventListener('click', () => this.reset());
     document.getElementById('dark-mode-btn')?.addEventListener('click', () => this.toggleDarkMode());
-    
-    // ADD THIS LINE:
     document.getElementById('theme-btn')?.addEventListener('click', () => cycleTheme());
-    
-    document.getElementById('templates-btn')?.addEventListener('click', () => {
-      const modalHtml = UI.renderTemplatesModal(this.state.savedTemplates);
-      document.body.insertAdjacentHTML('beforeend', modalHtml);
-    });
-  
-    // Connections button
     document.getElementById('connections-btn')?.addEventListener('click', () => this.showConnectionsModal());
-    
-    // API Inspector toggle
     document.getElementById('api-inspector-header')?.addEventListener('click', () => this.toggleApiInspector());
-    
-    // Search and filter
+
     document.getElementById('connector-search')?.addEventListener('input', (e) => {
       this.state.searchQuery = e.target.value.toLowerCase();
       this.render();
     });
     
-    document.getElementById('category-filter')?.addEventListener('change', (e) => {
-      this.state.categoryFilter = e.target.value;
-      this.render();
-    });
-    
-    // Response view mode
     document.querySelectorAll('.view-mode-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         this.state.responseViewMode = e.target.dataset.mode;
@@ -799,7 +790,6 @@ class AlloyDemo {
       });
     });
     
-    // Config modal
     document.getElementById('save-config-btn')?.addEventListener('click', () => {
       const apiKey = document.getElementById('config-api-key').value.trim();
       const userId = document.getElementById('config-user-id').value.trim();
@@ -810,7 +800,6 @@ class AlloyDemo {
       }
     });
     
-    // Connector selection
     document.querySelectorAll('.connector-card').forEach(card => {
       card.addEventListener('click', () => {
         const idx = parseInt(card.dataset.connectorIdx);
@@ -818,7 +807,6 @@ class AlloyDemo {
       });
     });
     
-    // Recent activity
     document.querySelectorAll('.rerun-activity').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -827,7 +815,6 @@ class AlloyDemo {
       });
     });
     
-    // Action selection
     document.querySelectorAll('.action-select').forEach(select => {
       select.addEventListener('change', (e) => {
         const resourceIdx = parseInt(select.dataset.resourceIdx);
@@ -840,7 +827,6 @@ class AlloyDemo {
       });
     });
     
-    // Form fields
     document.querySelectorAll('.field-input').forEach(input => {
       const fieldName = input.dataset.fieldName;
       
@@ -853,18 +839,15 @@ class AlloyDemo {
       });
     });
     
-    // Form buttons
     document.getElementById('autofill-btn')?.addEventListener('click', () => this.autoFillForm());
-    document.getElementById('save-template-btn')?.addEventListener('click', () => this.saveTemplate());
     document.getElementById('execute-btn')?.addEventListener('click', () => this.executeAction());
     document.getElementById('try-again-btn')?.addEventListener('click', () => this.reset());
   }
 }
 
-// Initialize the app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
-    initTheme(); // Initialize theme first
+    initTheme();
     window.alloyDemo = new AlloyDemo();
   }, 100);
 });

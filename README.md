@@ -21,7 +21,7 @@ Each theme demonstrates the white-label power of Alloy CAPI - **same data, compl
 
 **[📱 Try it Live](https://your-username.github.io/alloy-capi-demo/)** ← Click to use immediately!
 
-Or download `index - Copy.html` and open directly in your browser. No server needed!
+Or download `index.html` (single-file version) and open directly in your browser. No server needed!
 
 ### Option 2: Modular Version (For Development)
 
@@ -35,7 +35,7 @@ python -m http.server 8000
 
 ## 📦 Two Versions Explained
 
-### Single-File Version (`index - Copy.html`)
+### Single-File Version (`index.html`)
 - ✅ All code in one HTML file
 - ✅ No server required - open directly in browser
 - ✅ Easy to share and deploy
@@ -57,6 +57,7 @@ python -m http.server 8000
 - **Live API Integration** - Real-time calls to Alloy Connectivity API
 - **100+ Connectors** - Support for all major SaaS platforms (HubSpot, Salesforce, Stripe, QuickBooks, etc.)
 - **OAuth 2.0 Flow** - Complete authentication workflow with popup handling
+- **Setup Requirements Badge** - Visual indicator for connectors requiring client credentials
 - **Dynamic Schema Parsing** - Automatically generates forms from API schemas
 - **Credential Management** - Connect, test, reconnect, and disconnect integrations
 - **Action Execution** - Execute any API action with form validation
@@ -73,7 +74,7 @@ python -m http.server 8000
 
 ### UI/UX
 - **5-Step Workflow** - Visual progress through the integration flow
-- **Real-time Status** - Live credential status badges
+- **Real-time Status** - Live credential status badges with setup requirements
 - **Responsive Design** - Works on desktop, tablet, and mobile
 - **Loading States** - Smooth transitions and feedback
 - **Error Handling** - User-friendly error messages
@@ -84,7 +85,7 @@ python -m http.server 8000
 ## 📁 Project Structure
 ```
 /alloy-capi-demo
-  - index - Copy.html      # Single-file version (no server needed)
+  - index.html             # Single-file version (no server needed)
   - README.md              # This file
   
   /modular                 # Modular version (requires server)
@@ -97,6 +98,7 @@ python -m http.server 8000
       - schemaParser.js    # Dynamic schema parsing
       - demoData.js        # Smart test data generation
     - index.html           # Main HTML file with theme CSS
+    - README.md            # Modular version documentation
 ```
 
 ## 🚀 Installation
@@ -108,7 +110,7 @@ python -m http.server 8000
 
 ### Single-File Setup (Easiest)
 
-1. **Download** `index - Copy.html`
+1. **Download** `index.html` (single-file version)
 2. **Open** directly in your browser
 3. **Enter** your API credentials
 4. **Start** integrating!
@@ -147,7 +149,7 @@ http://localhost:8000
 ## 🎯 Usage Flow
 
 ### 1. Choose Platform
-Browse and select from 100+ available connectors. Use search and category filters to find the platform you need.
+Browse and select from 100+ available connectors. Use search and category filters to find the platform you need. Look for the **"⚙️ Setup Req'd"** badge to identify connectors that need additional configuration.
 
 ### 2. Select Resource & Action
 Pick the data model (resource) and the specific action you want to perform (Create, Read, Update, Delete, List, etc.).
@@ -217,7 +219,7 @@ body.theme-developer {
 
 - `GET /connectors` - List available integrations
 - `GET /connectors/{id}/credentials` - Check connection status
-- `GET /connectors/{id}/credentials/metadata` - Get credential requirements
+- `GET /connectors/{id}/credentials/metadata` - Get credential requirements & authConfigRequired
 - `POST /connectors/{id}/credentials` - Create OAuth connection
 - `DELETE /connectors/{id}/credentials/{credentialId}` - Disconnect
 - `GET /connectors/{id}/resources` - Get available resources
@@ -225,6 +227,9 @@ body.theme-developer {
 - `POST /connectors/{id}/actions/{actionId}/execute` - Execute action
 
 ## 📊 Features Deep Dive
+
+### Setup Requirements Badge
+The **"⚙️ Setup Req'd"** badge indicates connectors that require additional configuration (like client ID and secret) before authentication. Hover over the badge to see the tooltip explaining what's needed.
 
 ### API Inspector
 The built-in API Inspector shows:
@@ -245,6 +250,7 @@ The built-in API Inspector shows:
 ### Connection Manager
 - View all connected platforms
 - See credential count per platform
+- Identify setup requirements at a glance
 - Test connections in one click
 - Reconnect or disconnect easily
 - Central management hub
@@ -259,18 +265,18 @@ The built-in API Inspector shows:
 
 ### OAuth Flow
 - Popup-based authentication
-- Supports subdomain requirements (Zendesk, Freshdesk, etc.)
+- Supports dynamic configuration fields (subdomain, API keys, etc.)
 - Automatic retry on auth failure
 - Credential persistence
 - Secure redirect handling
 
-## 🏗️ Technical Architecture
+## 🗂️ Technical Architecture
 
 ### Modular Design (Modular Version)
 - **Config Module** (`config.js`) - Credential management with sessionStorage
 - **API Module** (`api.js`) - Fetch wrapper with history tracking
 - **Schema Parser** (`schemaParser.js`) - Dynamic form generation from OpenAPI specs
-- **UI Module** (`ui.js`) - Theme-aware rendering system
+- **UI Module** (`ui.js`) - Theme-aware rendering system with setup badge support
 - **Theme Module** (`themes.js`) - CSS-based theme switching
 - **Demo Data Generator** (`demoData.js`) - Context-aware test data
 
@@ -299,7 +305,7 @@ The built-in API Inspector shows:
 - ✅ No backend required (all client-side)
 - ✅ Credentials cleared on browser close
 
-## 🐛 Troubleshooting
+## 🛠 Troubleshooting
 
 ### Blank page (Modular version only)
 **Cause:** CORS error when opening `file://` directly  
@@ -318,9 +324,11 @@ The built-in API Inspector shows:
 - ✅ Verify connector supports OAuth2
 - ✅ Complete authentication in popup window
 - ✅ Click "I've Authenticated" button after OAuth
+- ✅ Provide required setup fields (subdomain, client ID, etc.)
 
 ### "Action execution fails"
 - ✅ Ensure connector is connected (green badge)
+- ✅ Check if "Setup Req'd" badge is showing
 - ✅ Fill all required fields (marked with *)
 - ✅ Check API Inspector for detailed error
 - ✅ Try "Test Connection" in credential modal
@@ -340,7 +348,7 @@ The built-in API Inspector shows:
 ## 🌐 Deployment
 
 ### GitHub Pages (Single-File)
-1. Push `index - Copy.html` to your repo
+1. Push `index.html` to your repo
 2. Go to Settings → Pages
 3. Select branch and root folder
 4. Visit `https://yourusername.github.io/repo-name/`
@@ -384,6 +392,7 @@ This demo is perfect for:
 - ✅ **Live API calls** - Real integrations, not mocked data
 - ✅ **4 complete themes** - Demonstrate white-label flexibility
 - ✅ **Full OAuth flow** - Production-ready authentication
+- ✅ **Setup badge indicator** - Visual cue for configuration requirements
 - ✅ **Schema-driven** - Adapts to any connector automatically
 - ✅ **Developer-friendly** - API inspector and keyboard shortcuts
 - ✅ **Production-ready** - Comprehensive error handling
@@ -410,6 +419,7 @@ This demo is provided as-is for use with Alloy Connectivity API. Free to use and
 2. Save frequently used configurations as templates
 3. Use Recent Activity to re-run past actions
 4. Test connections before executing actions
+5. Look for "Setup Req'd" badges to identify special requirements
 
 ### Keyboard Power User
 - `⌘K` → Instant search
@@ -436,7 +446,7 @@ This demo is provided as-is for use with Alloy Connectivity API. Free to use and
 ## 🔗 Quick Links
 
 - **[📱 Try Single-File Live Demo](https://your-username.github.io/alloy-capi-demo/)**
-- **[📦 Download Single-File Version](https://github.com/your-username/alloy-capi-demo/blob/main/index%20-%20Copy.html)**
+- **[📦 Download Single-File Version](https://github.com/your-username/alloy-capi-demo/blob/main/index.html)**
 - **[💻 View Modular Source](https://github.com/your-username/alloy-capi-demo/tree/main/modular)**
 - **[📖 Alloy Docs](https://docs.runalloy.com)**
 
