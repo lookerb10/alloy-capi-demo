@@ -19,7 +19,7 @@ Each theme demonstrates the white-label power of Alloy CAPI - **same data, compl
 
 ### Option 1: Single-File Version (No Server Required)
 
-**[📱 Try it Live](https://your-username.github.io/alloy-capi-demo/)** ← Click to use immediately!
+**[📱 Try it Live](https://lookerb10.github.io/alloy-capi-demo/standalone/)** ← Click to use immediately!
 
 Or download `index.html` (single-file version) and open directly in your browser. No server needed!
 
@@ -453,5 +453,6 @@ This demo is provided as-is for use with Alloy Connectivity API. Free to use and
 ---
 
 **Built with ❤️ to showcase the power of Alloy Connectivity API**
+
 
 Press **T** to see the magic! 🎨
